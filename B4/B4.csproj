@@ -1,28 +1,60 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <PropertyGroup>
-        <OutputType>Exe</OutputType>
-        <TargetFramework>net5.0</TargetFramework>
-        <Configurations>Debug;Release</Configurations>
-        <Platforms>AnyCPU</Platforms>
-        <Company>dotBunny</Company>
-        <Product>B4</Product>
-        <AssemblyVersion>0.1.0</AssemblyVersion>
-        <FileVersion>0.1.0</FileVersion>
-        <NeutralLanguage>en-CA</NeutralLanguage>
-        <StartupObject>B4.Program</StartupObject>
-        <RootNamespace>B4</RootNamespace>
-        <Version>$(AssemblyVersion)</Version>
-        <Authors>$(Company)</Authors>
-        <AssemblyName>B4</AssemblyName>
-    </PropertyGroup>
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <Configurations>Debug;Release;Package</Configurations>
+    <Platforms>AnyCPU</Platforms>
+    <Company>dotBunny</Company>
+    <Product>B4</Product>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <FileVersion>0.1.0</FileVersion>
+    <NeutralLanguage>en-CA</NeutralLanguage>
+    <StartupObject>B4.Program</StartupObject>
+    <RootNamespace>B4</RootNamespace>
+    <Version>$(AssemblyVersion)</Version>
+    <Authors>$(Company)</Authors>
+    <AssemblyName>B4</AssemblyName>
+    <Copyright>Copyright (c) 2022 dotBunny Inc.</Copyright>
+    <PackageProjectUrl>https://github.com/dotBunny/B4</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/dotBunny/B4/blob/main/LICENSE</PackageLicenseUrl>
+    <RepositoryUrl>https://github.com/dotBunny/B4.git</RepositoryUrl>
+    <RepositoryType>Git</RepositoryType>
+  </PropertyGroup>
 
-    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <DefineConstants />
-      <DebugType>none</DebugType>
-      <WarningLevel>3</WarningLevel>
-      <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-      <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-      <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DebugType>full</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DefineConstants />
+    <DebugType>portable</DebugType>
+    <WarningLevel>3</WarningLevel>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)' == 'Package' ">
+    <DefineConstants>RELEASE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>none</DebugType>
+    <WarningLevel>3</WarningLevel>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <OutputPath>bin\Package\</OutputPath>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <None Remove="Configs\K9.ini" />
+    <EmbeddedResource Include="Configs\K9.ini" />
+    <None Remove="Configs\B4.ini" />
+    <EmbeddedResource Include="Configs\B4.ini" />
+  </ItemGroup>
 </Project>

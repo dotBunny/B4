@@ -1,10 +1,10 @@
-﻿// Copyright (c) 2020-2021 dotBunny Inc.
+﻿// Copyright (c) 2022 dotBunny Inc.
 // dotBunny licenses this file to you under the BSL-1.0 license.
 // See the LICENSE file in the project root for more information.
 
 using System;
 
-namespace B4
+namespace B4.Utils
 {
     public static class Output
     {
@@ -45,7 +45,11 @@ namespace B4
         public static void Log(string message, ConsoleColor foregroundColor = ConsoleColor.Gray,
             ConsoleColor backgroundColor = ConsoleColor.Black)
         {
-            if (string.IsNullOrEmpty(message)) return;
+            if (string.IsNullOrEmpty(message))
+            {
+                return;
+            }
+
             StashState();
             Console.ForegroundColor = foregroundColor;
             Console.BackgroundColor = backgroundColor;
@@ -57,7 +61,10 @@ namespace B4
             ConsoleColor foregroundColor = ConsoleColor.Gray,
             ConsoleColor backgroundColor = ConsoleColor.Black)
         {
-            if (string.IsNullOrEmpty(message)) return;
+            if (string.IsNullOrEmpty(message))
+            {
+                return;
+            }
 
             StashState();
             Console.ForegroundColor = foregroundColor;
@@ -94,17 +101,16 @@ namespace B4
             RestoreState();
         }
 
-        static void RestoreState()
+        private static void RestoreState()
         {
             Console.BackgroundColor = s_stashedBackgroundColor;
             Console.ForegroundColor = s_stashedForegroundColor;
         }
 
-        static void StashState()
+        private static void StashState()
         {
             s_stashedBackgroundColor = Console.BackgroundColor;
             s_stashedForegroundColor = Console.ForegroundColor;
         }
-
     }
 }

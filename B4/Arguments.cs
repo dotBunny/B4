@@ -1,14 +1,18 @@
-﻿// Copyright (c) 2020-2021 dotBunny Inc.
+﻿// Copyright (c) 2022 dotBunny Inc.
 // dotBunny licenses this file to you under the BSL-1.0 license.
 // See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
+using B4.Utils;
 
 namespace B4
 {
     public class Arguments
     {
+        public const string OutputB4ConfigOption = "-output-b4-config";
+        public const string OutputK9ConfigOption = "-output-k9-config";
+
         public const string NoLaunchOption = "-no-launch";
         public const string RootDirectoryOption = "-root-directory";
         public const string TeamCityOption = "-teamcity";
@@ -17,13 +21,13 @@ namespace B4
         public const string K9RepositoryOption = "-k9-repo";
 
         /// <summary>
-        /// A list of arguments post processing.
+        ///     A list of arguments post processing.
         /// </summary>
         private readonly string[] _cleanedArguments;
 
-        private readonly string[] _rawArguments;
-
         private readonly int _cleanedArgumentsLength;
+
+        private readonly string[] _rawArguments;
 
         public Arguments(string[] args)
         {
@@ -31,7 +35,11 @@ namespace B4
             List<string> rawArguments = new(args.Length);
             foreach (string s in args)
             {
-                if (string.IsNullOrEmpty(s)) continue;
+                if (string.IsNullOrEmpty(s))
+                {
+                    continue;
+                }
+
                 string argument = s.ToLower();
                 if (argument.StartsWith("--"))
                 {
@@ -41,6 +49,7 @@ namespace B4
                 processedArguments.Add(argument);
                 rawArguments.Add(s);
             }
+
             _cleanedArguments = processedArguments.ToArray();
             _cleanedArgumentsLength = _cleanedArguments.Length;
             _rawArguments = rawArguments.ToArray();
@@ -55,6 +64,7 @@ namespace B4
                     return true;
                 }
             }
+
             return false;
         }
 
