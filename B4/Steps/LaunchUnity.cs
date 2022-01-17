@@ -36,6 +36,10 @@ namespace B4.Steps
             if (!string.IsNullOrEmpty(FindUnity.FullPath) && File.Exists(FindUnity.FullPath))
             {
                 string projectDirectory = Path.Combine(Program.RootDirectory, Config.ProjectRelativePath);
+                if (Program.Args.TryGetValue(Arguments.ProjectDirectoryArgument, out string projectDirectoryOverride))
+                {
+                    projectDirectory = Path.Combine(Program.RootDirectory, projectDirectoryOverride);
+                }
                 Output.Value("projectDirectory", projectDirectory);
                 Output.LogLine("Launching Editor ...");
 

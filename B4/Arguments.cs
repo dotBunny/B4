@@ -11,14 +11,11 @@ namespace B4
 {
     public class Arguments
     {
-        public const string OutputB4ConfigOption = "-output-b4-config";
-        public const string OutputK9ConfigOption = "-output-k9-config";
-
-        public const string RootDirectoryOption = "--root-directory";
-        public const string TeamCityOption = "-teamcity";
-        public const string UserEnvironmentOption = "-user-env";
         public const string HelpArgument = "--help";
-
+        public const string RootDirectoryArgument = "--root-directory";
+        public const string TeamCityArgument = "--teamcity";
+        public const string UserEnvironmentArgument = "--user-env";
+        public const string ProjectDirectoryArgument = "--project-directory";
 
         /// <summary>
         ///     A list of arguments post processing.

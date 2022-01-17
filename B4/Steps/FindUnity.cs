@@ -37,6 +37,8 @@ namespace B4.Steps
                 return;
             }
 
+            // TODO: Shouldnt the UNITY_VERSION be attached to the project folder
+
             Output.LogLine("Build paths ...");
             string temporaryFile = Path.Combine(Program.RootDirectory, "UNITY_EDITOR.tmp");
             Output.Value("temporaryFile", temporaryFile);

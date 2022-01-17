@@ -36,8 +36,8 @@ namespace B4
         private static void Main(string[] args)
         {
 
-            Output.LogLine($"B4 {typeof(Program).Assembly.GetName().Version} | Copyright (c) 2022 dotBunny Inc.", ConsoleColor.Green);
-            Output.LogLine($"Bootstrapped on {DateTime.Now:F}", ConsoleColor.DarkGray);
+            Output.LogLine($"B4 the Bootstrapper | Version {typeof(Program).Assembly.GetName().Version} | Copyright (c) 2022 dotBunny Inc.", ConsoleColor.Green);
+            Output.LogLine($"Started on {DateTime.Now:F}", ConsoleColor.DarkGray);
 
             Output.LogLine("Initializing ...");
             Args = new Arguments(args);
@@ -46,7 +46,7 @@ namespace B4
             RootDirectory = Directory.GetCurrentDirectory();
 
             // Root Directory Override
-            if (Args.TryGetValue(Arguments.RootDirectoryOption, out string rootDirectoryOverride))
+            if (Args.TryGetValue(Arguments.RootDirectoryArgument, out string rootDirectoryOverride))
             {
                 RootDirectory = Path.GetFullPath(rootDirectoryOverride);
             }
@@ -94,14 +94,14 @@ namespace B4
 
         public static void SetEnvironmentVariable(string name, string value)
         {
-            if (Args.Has(Arguments.TeamCityOption))
+            if (Args.Has(Arguments.TeamCityArgument))
             {
                 // Set for TeamCity
                 Output.LogLine($"##teamcity[setParameter name='{name}' value='{value}']", ConsoleColor.Yellow);
             }
 
             // Set for user (no-perm request)
-            if (Args.Has(Arguments.UserEnvironmentOption))
+            if (Args.Has(Arguments.UserEnvironmentArgument))
             {
                 Environment.SetEnvironmentVariable(name, value, EnvironmentVariableTarget.User);
             }
