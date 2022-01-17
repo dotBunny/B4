@@ -19,12 +19,6 @@ namespace B4
         public static string K9ConfigDefaultContent = "STEAM_Username=UNDEFINED" + "\n" +
                                                       "STEAM_Password=UNDEFINED";
 
-        /// <summary>
-        ///     The expected relative folder placement of a prebuilt K9.
-        /// </summary>
-        public static string K9PrebuiltDirectory = "K9";
-
-        public static string K9RepositoryDirectory = Path.Combine("Projects", "K9");
 
         public static string PingHost = "github.com";
 
@@ -32,10 +26,6 @@ namespace B4
 
         public static string ProjectRelativePath = Path.Combine("Projects", "NightOwl");
 
-        /// <summary>
-        ///     The full path to the root folder of operations.
-        /// </summary>
-        /// <remarks>This requires that the bootstrapper live at the root of the project to work by default.</remarks>
-        public static string RootDirectory;
+        //public static string RootDirectory;
     }
 }

@@ -23,7 +23,7 @@ namespace B4.Steps
         /// <inheritdoc />
         public void Process()
         {
-            string configPath = Path.Combine(Config.RootDirectory, Config.K9ConfigName);
+            string configPath = Path.Combine(Program.RootDirectory, Config.K9ConfigName);
 
             // Write default file out
             if (!File.Exists(configPath))
@@ -38,7 +38,7 @@ namespace B4.Steps
             LoadedConfig?.SetEnvironmentVariables();
 
 
-            string steamworksDirectory = Path.Combine(Config.RootDirectory, "ThirdParty", "Steamworks");
+            string steamworksDirectory = Path.Combine(Program.RootDirectory, "ThirdParty", "Steamworks");
             Program.SetEnvironmentVariable("SteamworksDirectory", steamworksDirectory);
             // ReSharper disable once StringLiteralTypo
             Program.SetEnvironmentVariable("SteamCommand",

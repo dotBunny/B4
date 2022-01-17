@@ -17,7 +17,7 @@ namespace B4
     internal static class Program
     {
         /// <summary>
-        ///     The processed arguments for the bootstrap.
+        ///     The processed arguments for the bootstrapper.
         /// </summary>
         public static Arguments Args;
 
@@ -26,36 +26,32 @@ namespace B4
         /// </summary>
         public static bool IsOnline;
 
+        /// <summary>
+        ///     The full path to the root folder of operations.
+        /// </summary>
+        /// <remarks>This requires that the bootstrapper live at the root of the project to work by default.</remarks>
+        public static string RootDirectory;
+
         // ReSharper disable once UnusedMember.Local
         private static void Main(string[] args)
         {
-            Output.LogLine($"PROJECT {Config.ProjectName} BOOTSTRAP | Copyright (c) 2022 dotBunny Inc.",
-                ConsoleColor.Blue);
-            Output.LogLine($"Bootstrapped on {DateTime.Now:F}");
+
+            Output.LogLine($"B4 {typeof(Program).Assembly.GetName().Version} | Copyright (c) 2022 dotBunny Inc.", ConsoleColor.Green);
+            Output.LogLine($"Bootstrapped on {DateTime.Now:F}", ConsoleColor.DarkGray);
 
             Output.LogLine("Initializing ...");
             Args = new Arguments(args);
 
             // Current Directory
-            Config.RootDirectory = Directory.GetCurrentDirectory();
+            RootDirectory = Directory.GetCurrentDirectory();
 
             // Root Directory Override
             if (Args.TryGetValue(Arguments.RootDirectoryOption, out string rootDirectoryOverride))
             {
-                Config.RootDirectory = Path.GetFullPath(rootDirectoryOverride);
+                RootDirectory = Path.GetFullPath(rootDirectoryOverride);
             }
 
-            Output.Value("RootDirectory", Config.RootDirectory);
-
-            if (Args.TryGetValue(Arguments.K9PrebuiltOption, out string k9PrebuiltOverride))
-            {
-                Config.K9PrebuiltDirectory = k9PrebuiltOverride;
-            }
-
-            if (Args.TryGetValue(Arguments.K9RepositoryOption, out string k9RepositoryOverride))
-            {
-                Config.K9RepositoryDirectory = k9RepositoryOverride;
-            }
+            Output.Value("RootDirectory", RootDirectory);
 
             // Check Internet Connection
             Ping ping = new();
@@ -74,25 +70,21 @@ namespace B4
             }
             finally
             {
-                if (IsOnline)
-                {
-                    Output.LogLine("Online Mode", ConsoleColor.Green);
-                }
-                else
-                {
-                    Output.LogLine("Offline Mode", ConsoleColor.Yellow);
-                }
+                Output.Value("IsOnline", IsOnline.ToString());
             }
 
-            if (Args.Has("-help"))
+            // Initialize our step processors, this will self register content for other systems
+            // (like the --help) argument.
+            IStep[] steps = { new K9(), new K9Config(), new RemotePackages(), new FindUnity(), new LaunchUnity() };
+
+            // Check for help request
+            if (Args.Has(Arguments.HelpArgument))
             {
                 Args.Help();
                 return;
             }
 
-            // RUN THROUGH STEPS
-            IStep[] steps = { new K9(), new K9Config(), new RemotePackages(), new FindUnity(), new LaunchUnity() };
-
+            // Process Setsp
             foreach (IStep step in steps)
             {
                 Output.SectionHeader(step.GetHeader());

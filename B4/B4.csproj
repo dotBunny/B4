@@ -31,7 +31,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DefineConstants />
+    <DefineConstants/>
     <DebugType>portable</DebugType>
     <WarningLevel>3</WarningLevel>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
@@ -50,11 +50,11 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <OutputPath>bin\Package\</OutputPath>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <None Remove="Configs\K9.ini" />
-    <EmbeddedResource Include="Configs\K9.ini" />
-    <None Remove="Configs\B4.ini" />
-    <EmbeddedResource Include="Configs\B4.ini" />
+    <None Remove="Configs\K9.ini"/>
+    <EmbeddedResource Include="Configs\K9.ini"/>
+    <None Remove="Configs\B4.ini"/>
+    <EmbeddedResource Include="Configs\B4.ini"/>
   </ItemGroup>
 </Project>

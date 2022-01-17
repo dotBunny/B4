@@ -9,10 +9,18 @@ namespace B4.Steps
 {
     public class FindUnity : IStep
     {
+        public const string NoArgument = "--no-find-unity";
+
         /// <summary>
         ///     The determined full path to the desired Unity Editor.
         /// </summary>
         public static string FullPath;
+
+        public FindUnity()
+        {
+            Program.Args.RegisterHelp("Find Unity", NoArgument,
+                "\t\t\tDo not find the Unity installation. This will also force skipping the launch of the editor.");
+        }
 
         /// <inheritdoc />
         public string GetHeader()
@@ -23,16 +31,22 @@ namespace B4.Steps
         /// <inheritdoc />
         public void Process()
         {
+            if (Program.Args.Has(NoArgument))
+            {
+                Output.LogLine("Skipped.");
+                return;
+            }
+
             Output.LogLine("Build paths ...");
-            string temporaryFile = Path.Combine(Config.RootDirectory, "UNITY_EDITOR.tmp");
+            string temporaryFile = Path.Combine(Program.RootDirectory, "UNITY_EDITOR.tmp");
             Output.Value("temporaryFile", temporaryFile);
             string k9UnityPath = Path.Combine(K9.FullPath, "K9.Unity.dll");
             Output.Value("k9UnityPath", k9UnityPath);
-            string inputPath = Path.Combine(Config.RootDirectory, "UNITY_VERSION");
+            string inputPath = Path.Combine(Program.RootDirectory, "UNITY_VERSION");
             Output.Value("inputPath", inputPath);
 
             Output.LogLine("Launch K9.Unity::FindEditor ...");
-            ChildProcess.WaitFor("dotnet", Config.RootDirectory,
+            ChildProcess.WaitFor("dotnet", Program.RootDirectory,
                 $"{k9UnityPath} FindEditor --input {inputPath} --output {temporaryFile}");
 
             if (File.Exists(temporaryFile))

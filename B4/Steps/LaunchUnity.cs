@@ -9,6 +9,14 @@ namespace B4.Steps
 {
     public class LaunchUnity : IStep
     {
+        private const string NoArgument = "--no-launch-unity";
+
+        public LaunchUnity()
+        {
+            Program.Args.RegisterHelp("Launch Unity", NoArgument,
+                "\t\tDo not launch project in Unity upon execution.");
+        }
+
         /// <inheritdoc />
         public string GetHeader()
         {
@@ -18,7 +26,8 @@ namespace B4.Steps
         /// <inheritdoc />
         public void Process()
         {
-            if (Program.Args.Has(Arguments.NoLaunchOption))
+            if (Program.Args.Has(NoArgument) ||
+                Program.Args.Has(FindUnity.NoArgument))
             {
                 Output.LogLine("Skipped.");
                 return;
@@ -26,7 +35,7 @@ namespace B4.Steps
 
             if (!string.IsNullOrEmpty(FindUnity.FullPath) && File.Exists(FindUnity.FullPath))
             {
-                string projectDirectory = Path.Combine(Config.RootDirectory, Config.ProjectRelativePath);
+                string projectDirectory = Path.Combine(Program.RootDirectory, Config.ProjectRelativePath);
                 Output.Value("projectDirectory", projectDirectory);
                 Output.LogLine("Launching Editor ...");
 
