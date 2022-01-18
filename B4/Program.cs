@@ -75,7 +75,7 @@ namespace B4
 
             // Initialize our step processors, this will self register content for other systems
             // (like the --help) argument.
-            IStep[] steps = { new K9(), new K9Config(), new RemotePackages(), new FindUnity(), new LaunchUnity() };
+            IStep[] steps = { new B4(), new K9(), new K9Config(), new RemotePackages(), new FindUnity(), new LaunchUnity() };
 
             // Check for help request
             if (Args.Has(Arguments.HelpKey))

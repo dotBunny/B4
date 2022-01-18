@@ -9,7 +9,7 @@ namespace B4.Utils
 {
     public static class Git
     {
-        public static void GetOrUpdate(string name, string repositoryDirectory, string repositoryURI, Action onUpdate)
+        public static void GetOrUpdate(string name, string repositoryDirectory, string repositoryURI, Action onUpdate = null)
         {
             if (Directory.Exists(repositoryDirectory))
             {
