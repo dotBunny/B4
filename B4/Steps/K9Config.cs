@@ -15,6 +15,12 @@ namespace B4.Steps
         private SimpleConfig _loadedConfig;
 
         /// <inheritdoc />
+        public string GetID()
+        {
+            return "k9config";
+        }
+
+        /// <inheritdoc />
         public string GetHeader()
         {
             return "K9 Config";

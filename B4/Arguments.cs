@@ -60,9 +60,6 @@ namespace B4
                 argumentChain.Append($"{s} ");
             }
             Output.LogLine($"Using arguments {argumentChain.ToString().Trim()}");
-
-            // Register section based arguments??
-            // -project should be in unity
         }
 
         public void RegisterHelp(string section, string arg, string message)
@@ -113,7 +110,7 @@ namespace B4
             Output.Log("<", ConsoleColor.Cyan);
             Output.Log("value");
             Output.Log(">", ConsoleColor.Cyan);
-            Output.Log("\tOverride the host to ping to detect an online connection.");
+            Output.Log("\t\tOverride the host to ping to detect an online connection.");
             Output.NextLine();
 
             Output.Log($"{ArgumentPrefix}{RootDirectoryKey} ", ConsoleColor.Cyan);

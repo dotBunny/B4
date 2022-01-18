@@ -6,6 +6,7 @@ namespace B4
 {
     public interface IStep
     {
+        public string GetID();
         public string GetHeader();
         public void Process();
     }

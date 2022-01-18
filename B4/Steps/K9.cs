@@ -35,6 +35,12 @@ namespace B4.Steps
         }
 
         /// <inheritdoc />
+        public string GetID()
+        {
+            return "k9";
+        }
+
+        /// <inheritdoc />
         public string GetHeader()
         {
             return "K9 Installation";

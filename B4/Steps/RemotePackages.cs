@@ -14,6 +14,12 @@ namespace B4.Steps
         private const string UnityManifestKey = "unity-manifest";
 
         /// <inheritdoc />
+        public string GetID()
+        {
+            return "remotepackages";
+        }
+
+        /// <inheritdoc />
         public string GetHeader()
         {
             return "Remote Packages";

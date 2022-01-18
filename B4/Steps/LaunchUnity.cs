@@ -18,6 +18,12 @@ namespace B4.Steps
         }
 
         /// <inheritdoc />
+        public string GetID()
+        {
+            return "launchunity";
+        }
+
+        /// <inheritdoc />
         public string GetHeader()
         {
             return "Launch Unity";

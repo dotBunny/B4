@@ -3,8 +3,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using B4.Steps;
 using B4.Utils;
 
@@ -42,7 +45,9 @@ namespace B4
         /// </summary>
         public static string ProjectDirectory = Path.Combine(RootDirectory, "Projects", "NightOwl");
 
-        private static string PingHost = "github.com";
+        private static string s_pingHost = "github.com";
+
+        private static Dictionary<string, IStep> s_steps = new();
 
         // ReSharper disable once UnusedMember.Local
         private static void Main(string[] args)
@@ -54,7 +59,6 @@ namespace B4
             Args = new Arguments(args);
 
             // TODO: Handle B4.ini Config
-
 
             // Root Directory Override
             if (Args.TryGetValue(Arguments.RootDirectoryKey, out string rootDirectoryOverride))
@@ -73,15 +77,15 @@ namespace B4
             // Ping Host Override
             if (Args.TryGetValue(Arguments.PingHostKey, out string pingHostOverride))
             {
-                PingHost = pingHostOverride;
+                s_pingHost = pingHostOverride;
             }
-            Output.Value("PingHost", PingHost);
+            Output.Value("PingHost", s_pingHost);
 
             // Check Internet Connection
             Ping ping = new();
             try
             {
-                PingReply reply = ping.Send(PingHost, 3000);
+                PingReply reply = ping.Send(s_pingHost, 3000);
                 if (reply != null)
                 {
                     IsOnline = reply.Status == IPStatus.Success;
@@ -97,9 +101,14 @@ namespace B4
                 Output.Value("IsOnline", IsOnline.ToString());
             }
 
-            // Initialize our step processors, this will self register content for other systems
-            // (like the --help) argument.
-            IStep[] steps = { new Bootstrapper(), new K9(), new K9Config(), new RemotePackages(), new FindUnity(), new LaunchUnity() };
+            // Initialize our step processors, this will self register content for other systems in the the right order
+            // of operation.
+            RegisterStep(new Bootstrapper());
+            RegisterStep(new K9());
+            RegisterStep(new K9Config());
+            RegisterStep(new RemotePackages());
+            RegisterStep(new FindUnity());
+            RegisterStep(new LaunchUnity());
 
             // Check for help request
             if (Args.Has(Arguments.HelpKey))
@@ -108,11 +117,13 @@ namespace B4
                 return;
             }
 
-            // Process Setsp
-            foreach (IStep step in steps)
+            // TODO: Process steps based on steps in config/cli arg
+
+            // Process Steps
+            foreach (KeyValuePair<string, IStep> kvp in s_steps)
             {
-                Output.SectionHeader(step.GetHeader());
-                step.Process();
+                Output.SectionHeader(kvp.Value.GetHeader());
+                kvp.Value.Process();
             }
         }
 
@@ -129,6 +140,11 @@ namespace B4
             {
                 Environment.SetEnvironmentVariable(name, value, EnvironmentVariableTarget.User);
             }
+        }
+
+        private static void RegisterStep(IStep step)
+        {
+            s_steps.Add(step.GetID(), step);
         }
     }
 }

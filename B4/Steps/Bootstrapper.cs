@@ -26,6 +26,12 @@ namespace B4.Steps
         }
 
         /// <inheritdoc />
+        public string GetID()
+        {
+            return "bootstrapper";
+        }
+
+        /// <inheritdoc />
         public string GetHeader()
         {
             return "B4 Source Code";
