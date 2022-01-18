@@ -9,7 +9,7 @@ namespace B4.Utils
 {
     public static class Git
     {
-        public static void GetOrUpdate(string name, string repositoryDirectory, string repositoryURI, Action postUpdate)
+        public static void GetOrUpdate(string name, string repositoryDirectory, string repositoryURI, Action onUpdate)
         {
             if (Directory.Exists(repositoryDirectory))
             {
@@ -67,7 +67,7 @@ namespace B4.Utils
                 {
                     Output.Error($"Unable to clone {name}.", -1, true);
                 }
-                postUpdate?.Invoke();
+                onUpdate?.Invoke();
             }
         }
     }
