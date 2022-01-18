@@ -13,9 +13,9 @@ namespace B4.Steps
     /// </summary>
     public class K9 : IStep
     {
-        private const string NoArgument = "--no-k9";
-        private const string PrebuiltArgument = "--k9";
-        private const string RepositoryArgument = "--k9-repo";
+        private const string NoKey = "no-k9";
+        private const string PrebuiltKey = "k9";
+        private const string RepositoryKey = "k9-repo";
 
         /// <summary>
         ///     The determined full path to the root of the built K9.
@@ -24,13 +24,13 @@ namespace B4.Steps
 
         public K9()
         {
-            Program.Args.RegisterHelp("K9", $"{NoArgument}",
+            Program.Args.RegisterHelp("K9", $"{NoKey}",
                 "\t\t\t\tBypass K9 installation and updating.");
 
-            Program.Args.RegisterHelp("K9", $"{PrebuiltArgument} <value>",
+            Program.Args.RegisterHelp("K9", $"{PrebuiltKey} <value>",
                 "\t\t\tOverride the K9 prebuilt relative path.");
 
-            Program.Args.RegisterHelp("K9", $"{RepositoryArgument} <value>",
+            Program.Args.RegisterHelp("K9", $"{RepositoryKey} <value>",
                 "\t\tOverride the K9 repository relative path.");
         }
 
@@ -45,7 +45,7 @@ namespace B4.Steps
         {
             // TODO: Config?
             string prebuiltDirectory = Path.Combine(Program.RootDirectory, "K9");
-            if (Program.Args.TryGetValue(PrebuiltArgument, out string prebuiltOverride))
+            if (Program.Args.TryGetValue(PrebuiltKey, out string prebuiltOverride))
             {
                 if (Directory.Exists(prebuiltOverride))
                 {
@@ -57,7 +57,7 @@ namespace B4.Steps
 
             // TODO: Config?
             string repositoryDirectory = Path.Combine(Program.RootDirectory, "Projects", "K9");
-            if (Program.Args.TryGetValue(RepositoryArgument, out string repositoryOverride))
+            if (Program.Args.TryGetValue(RepositoryKey, out string repositoryOverride))
             {
                 if (Directory.Exists(repositoryOverride))
                 {
@@ -74,7 +74,7 @@ namespace B4.Steps
             }
             else if (Program.IsOnline)
             {
-                if (!Program.Args.Has(NoArgument))
+                if (!Program.Args.Has(NoKey))
                 {
                     if (Directory.Exists(repositoryDirectory))
                     {

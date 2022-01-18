@@ -9,7 +9,7 @@ namespace B4.Steps
 {
     public class FindUnity : IStep
     {
-        public const string NoArgument = "--no-find-unity";
+        public const string NoKey = "no-find-unity";
 
         /// <summary>
         ///     The determined full path to the desired Unity Editor.
@@ -18,7 +18,7 @@ namespace B4.Steps
 
         public FindUnity()
         {
-            Program.Args.RegisterHelp("Find Unity", NoArgument,
+            Program.Args.RegisterHelp("Find Unity", NoKey,
                 "\t\t\tDo not find the Unity installation. This will also force skipping the launch of the editor.");
         }
 
@@ -31,7 +31,7 @@ namespace B4.Steps
         /// <inheritdoc />
         public void Process()
         {
-            if (Program.Args.Has(NoArgument))
+            if (Program.Args.Has(NoKey))
             {
                 Output.LogLine("Skipped.");
                 return;

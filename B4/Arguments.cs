@@ -11,11 +11,12 @@ namespace B4
 {
     public class Arguments
     {
-        public const string HelpArgument = "--help";
-        public const string RootDirectoryArgument = "--root-directory";
-        public const string TeamCityArgument = "--teamcity";
-        public const string UserEnvironmentArgument = "--user-env";
-        public const string ProjectDirectoryArgument = "--project-directory";
+        private const string ArgumentPrefix = "--";
+        public const string HelpKey = "help";
+        public const string RootDirectoryKey = "root-directory";
+        public const string TeamCityKey = "teamcity";
+        public const string UserEnvironmentKey = "user-env";
+        public const string ProjectDirectoryKey = "project-directory";
 
         /// <summary>
         ///     A list of arguments post processing.
@@ -38,7 +39,13 @@ namespace B4
                 {
                     continue;
                 }
-                processedArguments.Add(s.Trim().ToLower());
+
+                string p = s.Trim().ToLower();
+                if (p.StartsWith(ArgumentPrefix))
+                {
+                    p = p.Substring(ArgumentPrefix.Length);
+                }
+                processedArguments.Add(p);
                 rawArguments.Add(s);
             }
 
@@ -52,6 +59,9 @@ namespace B4
                 argumentChain.Append($"{s} ");
             }
             Output.LogLine($"Using arguments {argumentChain.ToString().Trim()}");
+
+            // Register section based arguments??
+            // -project should be in unity
         }
 
         public void RegisterHelp(string section, string arg, string message)
@@ -94,22 +104,29 @@ namespace B4
 
             Output.SectionHeader("General");
 
-            Output.Log("--help", ConsoleColor.Cyan);
+            Output.Log($"{ArgumentPrefix}{HelpKey}", ConsoleColor.Cyan);
             Output.Log("\t\t\t\tOutput helpful information.");
             Output.NextLine();
 
-            Output.Log("--root-directory ", ConsoleColor.Cyan);
+            Output.Log($"{ArgumentPrefix}{RootDirectoryKey} ", ConsoleColor.Cyan);
             Output.Log("<", ConsoleColor.Cyan);
             Output.Log("value");
             Output.Log(">", ConsoleColor.Cyan);
             Output.Log("\tOverride the root workspace directory.");
             Output.NextLine();
 
-            Output.Log("--teamcity", ConsoleColor.Cyan);
+            Output.Log($"{ArgumentPrefix}{ProjectDirectoryKey} ", ConsoleColor.Cyan);
+            Output.Log("<", ConsoleColor.Cyan);
+            Output.Log("value");
+            Output.Log(">", ConsoleColor.Cyan);
+            Output.Log("\tOverride the relative path to the Unity project.");
+            Output.NextLine();
+
+            Output.Log($"{ArgumentPrefix}{TeamCityKey}", ConsoleColor.Cyan);
             Output.Log("\t\t\tSet TeamCity environment variables.");
             Output.NextLine();
 
-            Output.Log("--user-env", ConsoleColor.Cyan);
+            Output.Log($"{ArgumentPrefix}{UserEnvironmentKey}", ConsoleColor.Cyan);
             Output.Log("\t\t\tSet user environment variables.");
             Output.NextLine();
 
@@ -124,14 +141,14 @@ namespace B4
                 {
                     if (item.Key.EndsWith("<value>"))
                     {
-                        Output.Log(item.Key.Substring(0, item.Key.Length - 7), ConsoleColor.Cyan);
+                        Output.Log($"{ArgumentPrefix}{item.Key.Substring(0, item.Key.Length - 7)}", ConsoleColor.Cyan);
                         Output.Log("<", ConsoleColor.Cyan);
                         Output.Log("value");
                         Output.Log(">", ConsoleColor.Cyan);
                     }
                     else
                     {
-                        Output.Log(item.Key, ConsoleColor.Cyan);
+                        Output.Log($"{ArgumentPrefix}{item.Key}", ConsoleColor.Cyan);
                     }
                     Output.Log(item.Value);
                     Output.NextLine();

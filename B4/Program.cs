@@ -46,7 +46,7 @@ namespace B4
             RootDirectory = Directory.GetCurrentDirectory();
 
             // Root Directory Override
-            if (Args.TryGetValue(Arguments.RootDirectoryArgument, out string rootDirectoryOverride))
+            if (Args.TryGetValue(Arguments.RootDirectoryKey, out string rootDirectoryOverride))
             {
                 RootDirectory = Path.GetFullPath(rootDirectoryOverride);
             }
@@ -78,7 +78,7 @@ namespace B4
             IStep[] steps = { new K9(), new K9Config(), new RemotePackages(), new FindUnity(), new LaunchUnity() };
 
             // Check for help request
-            if (Args.Has(Arguments.HelpArgument))
+            if (Args.Has(Arguments.HelpKey))
             {
                 Args.Help();
                 return;
@@ -94,14 +94,14 @@ namespace B4
 
         public static void SetEnvironmentVariable(string name, string value)
         {
-            if (Args.Has(Arguments.TeamCityArgument))
+            if (Args.Has(Arguments.TeamCityKey))
             {
                 // Set for TeamCity
                 Output.LogLine($"##teamcity[setParameter name='{name}' value='{value}']", ConsoleColor.Yellow);
             }
 
             // Set for user (no-perm request)
-            if (Args.Has(Arguments.UserEnvironmentArgument))
+            if (Args.Has(Arguments.UserEnvironmentKey))
             {
                 Environment.SetEnvironmentVariable(name, value, EnvironmentVariableTarget.User);
             }

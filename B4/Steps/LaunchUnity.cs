@@ -9,11 +9,11 @@ namespace B4.Steps
 {
     public class LaunchUnity : IStep
     {
-        private const string NoArgument = "--no-launch-unity";
+        private const string NoKey = "no-launch-unity";
 
         public LaunchUnity()
         {
-            Program.Args.RegisterHelp("Launch Unity", NoArgument,
+            Program.Args.RegisterHelp("Launch Unity", NoKey,
                 "\t\tDo not launch project in Unity upon execution.");
         }
 
@@ -26,8 +26,8 @@ namespace B4.Steps
         /// <inheritdoc />
         public void Process()
         {
-            if (Program.Args.Has(NoArgument) ||
-                Program.Args.Has(FindUnity.NoArgument))
+            if (Program.Args.Has(NoKey) ||
+                Program.Args.Has(FindUnity.NoKey))
             {
                 Output.LogLine("Skipped.");
                 return;
@@ -36,7 +36,7 @@ namespace B4.Steps
             if (!string.IsNullOrEmpty(FindUnity.FullPath) && File.Exists(FindUnity.FullPath))
             {
                 string projectDirectory = Path.Combine(Program.RootDirectory, Config.ProjectRelativePath);
-                if (Program.Args.TryGetValue(Arguments.ProjectDirectoryArgument, out string projectDirectoryOverride))
+                if (Program.Args.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryOverride))
                 {
                     projectDirectory = Path.Combine(Program.RootDirectory, projectDirectoryOverride);
                 }

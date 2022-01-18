@@ -9,9 +9,9 @@ namespace B4.Steps
 {
     public class RemotePackages : IStep
     {
-        private const string NoArgument = "--no-remote-packages";
-        private const string RemoteManifestArgument = "--remote-manifest";
-        private const string UnityManifestArgument = "--unity-manifest";
+        private const string NoKey = "no-remote-packages";
+        private const string RemoteManifestKey = "remote-manifest";
+        private const string UnityManifestKey = "unity-manifest";
 
         /// <inheritdoc />
         public string GetHeader()
@@ -21,39 +21,39 @@ namespace B4.Steps
 
         public RemotePackages()
         {
-            Program.Args.RegisterHelp("Remote Packages", NoArgument,
+            Program.Args.RegisterHelp("Remote Packages", NoKey,
                 "\t\tDo not process any remote packages.");
-            Program.Args.RegisterHelp("Remote Packages", $"{RemoteManifestArgument} <value>",
+            Program.Args.RegisterHelp("Remote Packages", $"{RemoteManifestKey} <value>",
                 "\tThe relative path to the remote packages manifest.");
-            Program.Args.RegisterHelp("Remote Packages", $"{UnityManifestArgument} <value>",
+            Program.Args.RegisterHelp("Remote Packages", $"{UnityManifestKey} <value>",
                 "\tThe relative path to the unity packages manifest. This really should never change.");
         }
 
         /// <inheritdoc />
         public void Process()
         {
-            if (Program.Args.Has(NoArgument))
+            if (Program.Args.Has(NoKey))
             {
                 Output.LogLine("Skipped.");
                 return;
             }
 
             string projectDirectory = Path.Combine(Program.RootDirectory, Config.ProjectRelativePath);
-            if (Program.Args.TryGetValue(Arguments.ProjectDirectoryArgument, out string projectDirectoryOverride))
+            if (Program.Args.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryOverride))
             {
                 projectDirectory = Path.Combine(Program.RootDirectory, projectDirectoryOverride);
             }
             Output.Value("projectDirectory", projectDirectory);
 
             string remoteManifest = Path.Combine(projectDirectory, "RemotePackages", "manifest.json");
-            if (Program.Args.TryGetValue(RemoteManifestArgument, out string remoteManifestOverride))
+            if (Program.Args.TryGetValue(RemoteManifestKey, out string remoteManifestOverride))
             {
                 remoteManifest = remoteManifestOverride;
             }
             Output.Value("remoteManifest", remoteManifest);
 
             string packageManifest = Path.Combine(projectDirectory, "Packages", "manifest.json");
-            if (Program.Args.TryGetValue(UnityManifestArgument, out string packageManifestOverride))
+            if (Program.Args.TryGetValue(UnityManifestKey, out string packageManifestOverride))
             {
                 packageManifest = packageManifestOverride;
             }
