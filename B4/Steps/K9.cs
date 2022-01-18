@@ -76,74 +76,15 @@ namespace B4.Steps
             {
                 if (!Program.Args.Has(NoKey))
                 {
-                    if (Directory.Exists(repositoryDirectory))
+                    Git.GetOrUpdate("K9", repositoryDirectory, "https://github.com/dotBunny/K9", () =>
                     {
-                        Output.LogLine("Fetching repository updates ...");
-                        // Grab latest (required really to proceed)
-                        if (!ChildProcess.WaitFor("git.exe", repositoryDirectory, "fetch origin"))
-                        {
-                            Output.Error("Unable to fetch updates for K9.", Environment.ExitCode, true);
-                        }
-
-                        // Check if repository is behind
-                        Output.LogLine("Checking repository status ...");
-                        bool isBehind = false;
-                        bool gitStatus = ChildProcess.WaitFor("git.exe", repositoryDirectory, "status -sb", line =>
-                        {
-                            if (line.Contains("behind"))
-                            {
-                                isBehind = true;
-                            }
-                        });
-
-                        if (!gitStatus)
-                        {
-                            Output.Error("Unable to understand the status of the K9 repository.", Environment.ExitCode,
-                                true);
-                        }
-
-                        if (isBehind)
-                        {
-                            Output.LogLine("Resetting local K9 source ...");
-                            if (!ChildProcess.WaitFor("git.exe", repositoryDirectory, "reset --hard"))
-                            {
-                                Output.Warning("Unable to reset K9 repository.");
-                            }
-
-                            Output.LogLine("Getting latest K9 source ...");
-                            if (!ChildProcess.WaitFor("git.exe", repositoryDirectory, "pull"))
-                            {
-                                Output.Warning("Unable to pull updates for K9 repository.");
-                            }
-
-                            Output.LogLine("Building K9 (Release) ...");
-                            if (!ChildProcess.WaitFor("dotnet.exe", repositoryDirectory,
-                                    "build K9.sln --configuration Release"))
-                            {
-                                Output.Error("Unable to build K9", -1, true);
-                            }
-                        }
-                        else
-                        {
-                            Output.LogLine("K9 is up-to-date.");
-                        }
-                    }
-                    else
-                    {
-                        Output.LogLine("Getting latest K9 source ...");
-                        if (!ChildProcess.WaitFor("git.exe", Program.RootDirectory,
-                                $"clone https://github.com/dotBunny/K9 {repositoryDirectory}"))
-                        {
-                            Output.Error("Unable to clone K9.", -1, true);
-                        }
-
-                        Output.LogLine("Building K9 (Release) ...");
+                        Output.LogLine($"Building K9 (Release) ...");
                         if (!ChildProcess.WaitFor("dotnet.exe", repositoryDirectory,
                                 "build K9.sln --configuration Release"))
                         {
                             Output.Error("Unable to build K9", -1, true);
                         }
-                    }
+                    });
                 }
                 else
                 {
