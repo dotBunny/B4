@@ -12,7 +12,7 @@ namespace B4.Steps
     /// </summary>
     public class K9Config : IStep
     {
-        public SimpleConfig LoadedConfig;
+        private SimpleConfig _loadedConfig;
 
         /// <inheritdoc />
         public string GetHeader()
@@ -23,26 +23,36 @@ namespace B4.Steps
         /// <inheritdoc />
         public void Process()
         {
-            string configPath = Path.Combine(Program.RootDirectory, Config.K9ConfigName);
+            string configPath = Path.Combine(Program.RootDirectory, "K9.ini");
+            Output.Value("configPath", configPath);
 
             // Write default file out
             if (!File.Exists(configPath))
             {
-                Output.LogLine("Creating DEFAULT K9 config ...");
-                File.WriteAllText(configPath, Config.K9ConfigDefaultContent);
+                Output.LogLine($"Creating default K9.ini config ...");
+
+                byte[] fileData = Resources.Get("Configs\\K9.ini");
+                if (fileData != null)
+                {
+                    File.WriteAllBytes(configPath, fileData);
+                }
+                else
+                {
+                    Output.Error("Unable to find default K9.ini data.", -911, false);
+                }
             }
 
             // Parse config
-            Output.LogLine($"Loading K9 config @ {configPath} ...");
-            LoadedConfig = new SimpleConfig(configPath);
-            LoadedConfig?.SetEnvironmentVariables();
+            Output.LogLine($"Loading K9 config ...");
+            _loadedConfig = new SimpleConfig(configPath);
+            _loadedConfig?.SetEnvironmentVariables();
 
 
-            string steamworksDirectory = Path.Combine(Program.RootDirectory, "ThirdParty", "Steamworks");
-            Program.SetEnvironmentVariable("SteamworksDirectory", steamworksDirectory);
-            // ReSharper disable once StringLiteralTypo
-            Program.SetEnvironmentVariable("SteamCommand",
-                Path.Combine(steamworksDirectory, "sdk", "tools", "ContentBuilder", "builder", "steamcmd.exe"));
+            // string steamworksDirectory = Path.Combine(Program.RootDirectory, "ThirdParty", "Steamworks");
+            // Program.SetEnvironmentVariable("SteamworksDirectory", steamworksDirectory);
+            // // ReSharper disable once StringLiteralTypo
+            // Program.SetEnvironmentVariable("SteamCommand",
+            //     Path.Combine(steamworksDirectory, "sdk", "tools", "ContentBuilder", "builder", "steamcmd.exe"));
         }
     }
 }

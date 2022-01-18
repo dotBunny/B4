@@ -11,12 +11,12 @@ namespace B4.Steps
     /// <summary>
     ///     Ensure that K9 is present and updated.
     /// </summary>
-    public class B4 : IStep
+    public class Bootstrapper : IStep
     {
         private const string NoKey = "no-b4";
         private const string RepositoryKey = "b4-repo";
 
-        public B4()
+        public Bootstrapper()
         {
             Program.Args.RegisterHelp("B4", $"{NoKey}",
                 "\t\t\t\tBypass B4 source download and updating.");

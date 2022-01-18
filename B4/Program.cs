@@ -22,6 +22,11 @@ namespace B4
         public static Arguments Args;
 
         /// <summary>
+        ///     The B4.ini loaded instance.
+        /// </summary>
+        public static SimpleConfig Config;
+
+        /// <summary>
         ///     Is an internet connection present and able to ping an outside host?
         /// </summary>
         public static bool IsOnline;
@@ -29,35 +34,54 @@ namespace B4
         /// <summary>
         ///     The full path to the root folder of operations.
         /// </summary>
-        /// <remarks>This requires that the bootstrapper live at the root of the project to work by default.</remarks>
-        public static string RootDirectory;
+        /// <remarks>This requires that the bootstrapper live at the root to work by default.</remarks>
+        public static string RootDirectory = Directory.GetCurrentDirectory();
+
+        /// <summary>
+        ///     The path to the projects folder, relative to <see cref="RootDirectory"/>.
+        /// </summary>
+        public static string ProjectDirectory = Path.Combine(RootDirectory, "Projects", "NightOwl");
+
+        private static string PingHost = "github.com";
 
         // ReSharper disable once UnusedMember.Local
         private static void Main(string[] args)
         {
-
             Output.LogLine($"B4 the Bootstrapper | Version {typeof(Program).Assembly.GetName().Version} | Copyright (c) 2022 dotBunny Inc.", ConsoleColor.Green);
             Output.LogLine($"Started on {DateTime.Now:F}", ConsoleColor.DarkGray);
 
             Output.LogLine("Initializing ...");
             Args = new Arguments(args);
 
-            // Current Directory
-            RootDirectory = Directory.GetCurrentDirectory();
+            // TODO: Handle B4.ini Config
+
 
             // Root Directory Override
             if (Args.TryGetValue(Arguments.RootDirectoryKey, out string rootDirectoryOverride))
             {
                 RootDirectory = Path.GetFullPath(rootDirectoryOverride);
             }
-
             Output.Value("RootDirectory", RootDirectory);
+
+            // Project Directory Override
+            if (Args.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryOverride))
+            {
+                ProjectDirectory = Path.GetFullPath(projectDirectoryOverride);
+            }
+            Output.Value("ProjectDirectory", ProjectDirectory);
+
+            // Ping Host Override
+            if (Args.TryGetValue(Arguments.PingHostKey, out string pingHostOverride))
+            {
+                PingHost = pingHostOverride;
+            }
+            Output.Value("PingHost", PingHost);
 
             // Check Internet Connection
             Ping ping = new();
             try
             {
-                PingReply reply = ping.Send(Config.PingHost, 3000);
+                PingReply reply = ping.Send(PingHost, 3000);
                 if (reply != null)
                 {
                     IsOnline = reply.Status == IPStatus.Success;
@@ -75,7 +99,7 @@ namespace B4
 
             // Initialize our step processors, this will self register content for other systems
             // (like the --help) argument.
-            IStep[] steps = { new Steps.B4(), new K9(), new K9Config(), new RemotePackages(), new FindUnity(), new LaunchUnity() };
+            IStep[] steps = { new Bootstrapper(), new K9(), new K9Config(), new RemotePackages(), new FindUnity(), new LaunchUnity() };
 
             // Check for help request
             if (Args.Has(Arguments.HelpKey))

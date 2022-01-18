@@ -38,21 +38,14 @@ namespace B4.Steps
                 return;
             }
 
-            string projectDirectory = Path.Combine(Program.RootDirectory, Config.ProjectRelativePath);
-            if (Program.Args.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryOverride))
-            {
-                projectDirectory = Path.Combine(Program.RootDirectory, projectDirectoryOverride);
-            }
-            Output.Value("projectDirectory", projectDirectory);
-
-            string remoteManifest = Path.Combine(projectDirectory, "RemotePackages", "manifest.json");
+            string remoteManifest = Path.Combine(Program.ProjectDirectory, "RemotePackages", "manifest.json");
             if (Program.Args.TryGetValue(RemoteManifestKey, out string remoteManifestOverride))
             {
                 remoteManifest = remoteManifestOverride;
             }
             Output.Value("remoteManifest", remoteManifest);
 
-            string packageManifest = Path.Combine(projectDirectory, "Packages", "manifest.json");
+            string packageManifest = Path.Combine(Program.ProjectDirectory, "Packages", "manifest.json");
             if (Program.Args.TryGetValue(UnityManifestKey, out string packageManifestOverride))
             {
                 packageManifest = packageManifestOverride;

@@ -17,6 +17,7 @@ namespace B4
         public const string TeamCityKey = "teamcity";
         public const string UserEnvironmentKey = "user-env";
         public const string ProjectDirectoryKey = "project-directory";
+        public const string PingHostKey = "ping-host";
 
         /// <summary>
         ///     A list of arguments post processing.
@@ -108,18 +109,25 @@ namespace B4
             Output.Log("\t\t\t\tOutput helpful information.");
             Output.NextLine();
 
+            Output.Log($"{ArgumentPrefix}{PingHostKey} ", ConsoleColor.Cyan);
+            Output.Log("<", ConsoleColor.Cyan);
+            Output.Log("value");
+            Output.Log(">", ConsoleColor.Cyan);
+            Output.Log("\tOverride the host to ping to detect an online connection.");
+            Output.NextLine();
+
             Output.Log($"{ArgumentPrefix}{RootDirectoryKey} ", ConsoleColor.Cyan);
             Output.Log("<", ConsoleColor.Cyan);
             Output.Log("value");
             Output.Log(">", ConsoleColor.Cyan);
-            Output.Log("\tOverride the root workspace directory.");
+            Output.Log("\tOverride the absolute path of the root workspace directory.");
             Output.NextLine();
 
             Output.Log($"{ArgumentPrefix}{ProjectDirectoryKey} ", ConsoleColor.Cyan);
             Output.Log("<", ConsoleColor.Cyan);
             Output.Log("value");
             Output.Log(">", ConsoleColor.Cyan);
-            Output.Log("\tOverride the relative path to the Unity project.");
+            Output.Log("\tOverride the absolute path to the Unity project.");
             Output.NextLine();
 
             Output.Log($"{ArgumentPrefix}{TeamCityKey}", ConsoleColor.Cyan);
