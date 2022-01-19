@@ -37,7 +37,7 @@ namespace B4.Steps
             {
                 Output.LogLine($"Creating default K9.ini config ...");
 
-                byte[] fileData = Resources.Get("Configs\\K9.ini");
+                byte[] fileData = Resources.Get("B4.Configs.K9.ini");
                 if (fileData != null)
                 {
                     File.WriteAllBytes(configPath, fileData);

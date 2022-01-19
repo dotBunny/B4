@@ -10,6 +10,7 @@ using System.Net.NetworkInformation;
 using System.Reflection;
 using B4.Steps;
 using B4.Utils;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace B4
 {
@@ -43,9 +44,9 @@ namespace B4
         /// <summary>
         ///     The path to the projects folder, relative to <see cref="RootDirectory"/>.
         /// </summary>
-        public static string ProjectDirectory = Path.Combine(RootDirectory, "Projects", "NightOwl");
+        public static string ProjectDirectory;
 
-        private static string s_pingHost = "github.com";
+        private static string s_pingHost;
 
         private static Dictionary<string, IStep> s_steps = new();
 
@@ -58,8 +59,6 @@ namespace B4
             Output.LogLine("Initializing ...");
             Args = new Arguments(args);
 
-            // TODO: Handle B4.ini Config
-
             // Root Directory Override
             if (Args.TryGetValue(Arguments.RootDirectoryKey, out string rootDirectoryOverride))
             {
@@ -67,14 +66,28 @@ namespace B4
             }
             Output.Value("RootDirectory", RootDirectory);
 
-            // Project Directory Override
+            // Load B4 Config
+            string configPath = Path.Combine(RootDirectory, "B4.ini");
+            Config = File.Exists(configPath)
+                ? new SimpleConfig(configPath)
+                : new SimpleConfig(Resources.Get("B4.Configs.B4.ini"));//"Configs\\B4.ini"));
+
+            // ProjectDirectory
+            if (Config.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryDefault))
+            {
+                ProjectDirectory = Path.GetFullPath(Path.Combine(RootDirectory, projectDirectoryDefault));
+            }
             if (Args.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryOverride))
             {
                 ProjectDirectory = Path.GetFullPath(projectDirectoryOverride);
             }
             Output.Value("ProjectDirectory", ProjectDirectory);
 
-            // Ping Host Override
+            // PingHost
+            if (Config.TryGetValue(Arguments.PingHostKey, out string pingHostDefault))
+            {
+                s_pingHost = pingHostDefault;
+            }
             if (Args.TryGetValue(Arguments.PingHostKey, out string pingHostOverride))
             {
                 s_pingHost = pingHostOverride;
@@ -103,6 +116,8 @@ namespace B4
 
             // Initialize our step processors, this will self register content for other systems in the the right order
             // of operation.
+
+            // TODO:each constructor should reach out to program loaded config for defaults?
             RegisterStep(new Bootstrapper());
             RegisterStep(new K9());
             RegisterStep(new K9Config());

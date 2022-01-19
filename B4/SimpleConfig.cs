@@ -11,12 +11,32 @@ namespace B4
 {
     public class SimpleConfig
     {
-        private readonly Dictionary<string, string> _config = new();
+        private readonly string _filePath;
+        private readonly string[] _fileContent;
+
+        private Dictionary<string, string> _config = new();
 
         public SimpleConfig(string filePath)
         {
-            string[] configLines = File.ReadAllLines(filePath);
-            foreach (string s in configLines)
+            _filePath = filePath;
+            if (File.Exists(_filePath))
+            {
+                _fileContent = File.ReadAllLines(_filePath);
+            }
+            Parse();
+        }
+
+        public SimpleConfig(byte[] resource)
+        {
+            _filePath = "Embedded";
+            string s = System.Text.Encoding.UTF8.GetString(resource, 0, resource.Length);
+            _fileContent = s.Split('\n', StringSplitOptions.TrimEntries);
+            Parse();
+        }
+
+        private void Parse()
+        {
+            foreach (string s in _fileContent)
             {
                 if (string.IsNullOrEmpty(s))
                 {
@@ -40,7 +60,7 @@ namespace B4
                 }
                 else
                 {
-                    Output.LogLine($"Invalid SimpleConfig line found: {s} in {filePath}", ConsoleColor.Red);
+                    Output.LogLine($"Invalid SimpleConfig line found: {s} in {_filePath}", ConsoleColor.Red);
                 }
             }
         }
