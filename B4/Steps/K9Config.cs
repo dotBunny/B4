@@ -35,7 +35,7 @@ namespace B4.Steps
             // Write default file out
             if (!File.Exists(configPath))
             {
-                Output.LogLine($"Creating default K9.ini config ...");
+                Output.LogLine("Creating default K9.ini config ...");
 
                 byte[] fileData = Resources.Get("B4.Configs.K9.ini");
                 if (fileData != null)
@@ -44,12 +44,12 @@ namespace B4.Steps
                 }
                 else
                 {
-                    Output.Error("Unable to find default K9.ini data.", -911, false);
+                    Output.Error("Unable to find default K9.ini data.", -911);
                 }
             }
 
             // Parse config
-            Output.LogLine($"Loading K9 config ...");
+            Output.LogLine("Loading K9 config ...");
             _loadedConfig = new SimpleConfig(configPath);
             _loadedConfig?.SetEnvironmentVariables();
 

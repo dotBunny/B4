@@ -44,7 +44,8 @@ namespace B4.Steps
                 Output.LogLine("Launching Editor ...");
 
                 //TODO: Addd &?
-                if (!ChildProcess.SpawnHidden(FindUnity.FullPath, Program.ProjectDirectory, $"-projectPath {Program.ProjectDirectory}"))
+                if (!ChildProcess.SpawnHidden(FindUnity.FullPath, Program.ProjectDirectory,
+                        $"-projectPath {Program.ProjectDirectory}"))
                 {
                     Output.Error("Failed to launch Unity.", -1);
                 }

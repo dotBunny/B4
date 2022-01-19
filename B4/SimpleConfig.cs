@@ -5,16 +5,17 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using B4.Utils;
 
 namespace B4
 {
     public class SimpleConfig
     {
-        private readonly string _filePath;
         private readonly string[] _fileContent;
+        private readonly string _filePath;
 
-        private Dictionary<string, string> _config = new();
+        private readonly Dictionary<string, string> _config = new();
 
         public SimpleConfig(string filePath)
         {
@@ -23,13 +24,14 @@ namespace B4
             {
                 _fileContent = File.ReadAllLines(_filePath);
             }
+
             Parse();
         }
 
         public SimpleConfig(byte[] resource)
         {
             _filePath = "Embedded";
-            string s = System.Text.Encoding.UTF8.GetString(resource, 0, resource.Length);
+            string s = Encoding.UTF8.GetString(resource, 0, resource.Length);
             _fileContent = s.Split('\n', StringSplitOptions.TrimEntries);
             Parse();
         }

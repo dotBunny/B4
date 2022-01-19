@@ -13,6 +13,16 @@ namespace B4.Steps
         private const string RemoteManifestKey = "remote-manifest";
         private const string UnityManifestKey = "unity-manifest";
 
+        public RemotePackages()
+        {
+            Program.Args.RegisterHelp("Remote Packages", NoKey,
+                "\t\tDo not process any remote packages.");
+            Program.Args.RegisterHelp("Remote Packages", $"{RemoteManifestKey} <value>",
+                "\tThe relative path to the remote packages manifest.");
+            Program.Args.RegisterHelp("Remote Packages", $"{UnityManifestKey} <value>",
+                "\tThe relative path to the unity packages manifest. This really should never change.");
+        }
+
         /// <inheritdoc />
         public string GetID()
         {
@@ -23,16 +33,6 @@ namespace B4.Steps
         public string GetHeader()
         {
             return "Remote Packages";
-        }
-
-        public RemotePackages()
-        {
-            Program.Args.RegisterHelp("Remote Packages", NoKey,
-                "\t\tDo not process any remote packages.");
-            Program.Args.RegisterHelp("Remote Packages", $"{RemoteManifestKey} <value>",
-                "\tThe relative path to the remote packages manifest.");
-            Program.Args.RegisterHelp("Remote Packages", $"{UnityManifestKey} <value>",
-                "\tThe relative path to the unity packages manifest. This really should never change.");
         }
 
         /// <inheritdoc />
@@ -49,6 +49,7 @@ namespace B4.Steps
             {
                 remoteManifest = remoteManifestOverride;
             }
+
             Output.Value("remoteManifest", remoteManifest);
 
             string packageManifest = Path.Combine(Program.ProjectDirectory, "Packages", "manifest.json");
@@ -56,6 +57,7 @@ namespace B4.Steps
             {
                 packageManifest = packageManifestOverride;
             }
+
             Output.Value("packageManifest", packageManifest);
 
             Output.LogLine("Process Remote Manifest ...");

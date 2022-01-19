@@ -9,7 +9,8 @@ namespace B4.Utils
 {
     public static class Git
     {
-        public static void GetOrUpdate(string name, string repositoryDirectory, string repositoryURI, Action onUpdate = null)
+        public static void GetOrUpdate(string name, string repositoryDirectory, string repositoryURI,
+            Action onUpdate = null)
         {
             if (Directory.Exists(repositoryDirectory))
             {
@@ -51,8 +52,6 @@ namespace B4.Utils
                     {
                         Output.Warning($"Unable to pull updates for {name} repository.");
                     }
-
-
                 }
                 else
                 {
@@ -67,6 +66,7 @@ namespace B4.Utils
                 {
                     Output.Error($"Unable to clone {name}.", -1, true);
                 }
+
                 onUpdate?.Invoke();
             }
         }

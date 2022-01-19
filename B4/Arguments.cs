@@ -46,6 +46,7 @@ namespace B4
                 {
                     p = p.Substring(ArgumentPrefix.Length);
                 }
+
                 processedArguments.Add(p);
                 rawArguments.Add(s);
             }
@@ -59,6 +60,7 @@ namespace B4
             {
                 argumentChain.Append($"{s} ");
             }
+
             Output.LogLine($"Using arguments {argumentChain.ToString().Trim()}");
         }
 
@@ -98,7 +100,8 @@ namespace B4
         {
             Output.NextLine();
             Output.LogLine(
-                "Simple configuration options which lean heavily towards configuring the bootstrap process for CI/CD solutions.", ConsoleColor.DarkGray);
+                "Simple configuration options which lean heavily towards configuring the bootstrap process for CI/CD solutions.",
+                ConsoleColor.DarkGray);
 
             Output.SectionHeader("General");
 
@@ -137,7 +140,8 @@ namespace B4
 
             Output.NextLine();
             Output.LogLine(
-                "The following arguments are meant to provide fine-grain control of the bootstrap steps, overriding any default values and/or values set in the B4.ini file.", ConsoleColor.DarkGray);
+                "The following arguments are meant to provide fine-grain control of the bootstrap steps, overriding any default values and/or values set in the B4.ini file.",
+                ConsoleColor.DarkGray);
 
             foreach (KeyValuePair<string, Dictionary<string, string>> section in _registeredHelp)
             {
@@ -155,6 +159,7 @@ namespace B4
                     {
                         Output.Log($"{ArgumentPrefix}{item.Key}", ConsoleColor.Cyan);
                     }
+
                     Output.Log(item.Value);
                     Output.NextLine();
                 }

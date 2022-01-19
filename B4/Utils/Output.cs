@@ -3,22 +3,16 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Text;
 
 namespace B4.Utils
 {
     public static class Output
     {
-
-
-
         public const ConsoleColor ExternalForegroundColor = ConsoleColor.DarkGray;
         public const ConsoleColor ExternalBackgroundColor = ConsoleColor.Black;
 
         private static ConsoleColor s_stashedForegroundColor;
         private static ConsoleColor s_stashedBackgroundColor;
-
-
 
 
         public static void Error(string message, int errorCode, bool isFatal = false)

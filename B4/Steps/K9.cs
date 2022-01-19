@@ -84,7 +84,7 @@ namespace B4.Steps
                 {
                     Git.GetOrUpdate("K9", repositoryDirectory, "https://github.com/dotBunny/K9", () =>
                     {
-                        Output.LogLine($"Building K9 (Release) ...");
+                        Output.LogLine("Building K9 (Release) ...");
                         if (!ChildProcess.WaitFor("dotnet.exe", repositoryDirectory,
                                 "build K9.sln --configuration Release"))
                         {
@@ -96,6 +96,7 @@ namespace B4.Steps
                 {
                     Output.Warning("Ignoring K9 installation/upgrading.");
                 }
+
                 FullPath = Path.Combine(repositoryDirectory, "Build", "Release");
             }
             else

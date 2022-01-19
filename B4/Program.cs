@@ -5,12 +5,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.NetworkInformation;
-using System.Reflection;
 using B4.Steps;
 using B4.Utils;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace B4
 {
@@ -42,18 +39,20 @@ namespace B4
         public static string RootDirectory = Directory.GetCurrentDirectory();
 
         /// <summary>
-        ///     The path to the projects folder, relative to <see cref="RootDirectory"/>.
+        ///     The path to the projects folder, relative to <see cref="RootDirectory" />.
         /// </summary>
         public static string ProjectDirectory;
 
         private static string s_pingHost;
 
-        private static Dictionary<string, IStep> s_steps = new();
+        private static readonly Dictionary<string, IStep> s_steps = new();
 
         // ReSharper disable once UnusedMember.Local
         private static void Main(string[] args)
         {
-            Output.LogLine($"B4 the Bootstrapper | Version {typeof(Program).Assembly.GetName().Version} | Copyright (c) 2022 dotBunny Inc.", ConsoleColor.Green);
+            Output.LogLine(
+                $"B4 the Bootstrapper | Version {typeof(Program).Assembly.GetName().Version} | Copyright (c) 2022 dotBunny Inc.",
+                ConsoleColor.Green);
             Output.LogLine($"Started on {DateTime.Now:F}", ConsoleColor.DarkGray);
 
             Output.LogLine("Initializing ...");
@@ -64,23 +63,26 @@ namespace B4
             {
                 RootDirectory = Path.GetFullPath(rootDirectoryOverride);
             }
+
             Output.Value("RootDirectory", RootDirectory);
 
             // Load B4 Config
             string configPath = Path.Combine(RootDirectory, "B4.ini");
             Config = File.Exists(configPath)
                 ? new SimpleConfig(configPath)
-                : new SimpleConfig(Resources.Get("B4.Configs.B4.ini"));//"Configs\\B4.ini"));
+                : new SimpleConfig(Resources.Get("B4.Configs.B4.ini"));
 
             // ProjectDirectory
             if (Config.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryDefault))
             {
                 ProjectDirectory = Path.GetFullPath(Path.Combine(RootDirectory, projectDirectoryDefault));
             }
+
             if (Args.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryOverride))
             {
                 ProjectDirectory = Path.GetFullPath(projectDirectoryOverride);
             }
+
             Output.Value("ProjectDirectory", ProjectDirectory);
 
             // PingHost
@@ -88,10 +90,12 @@ namespace B4
             {
                 s_pingHost = pingHostDefault;
             }
+
             if (Args.TryGetValue(Arguments.PingHostKey, out string pingHostOverride))
             {
                 s_pingHost = pingHostOverride;
             }
+
             Output.Value("PingHost", s_pingHost);
 
             // Check Internet Connection

@@ -3,6 +3,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.IO;
+using System.Reflection;
 
 namespace B4.Utils
 {
@@ -10,9 +11,13 @@ namespace B4.Utils
     {
         public static byte[] Get(string filename)
         {
-            System.Reflection.Assembly a = System.Reflection.Assembly.GetExecutingAssembly();
+            Assembly a = Assembly.GetExecutingAssembly();
             using Stream resFilestream = a.GetManifestResourceStream(filename);
-            if (resFilestream == null) return null;
+            if (resFilestream == null)
+            {
+                return null;
+            }
+
             byte[] ba = new byte[resFilestream.Length];
             resFilestream.Read(ba, 0, ba.Length);
             return ba;
