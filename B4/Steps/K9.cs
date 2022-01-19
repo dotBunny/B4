@@ -106,7 +106,7 @@ namespace B4.Steps
             }
 
             Output.Value("K9", FullPath);
-            Program.SetEnvironmentVariable("K9", FullPath);
+            Set.EnvironmentVariable("K9", FullPath);
         }
     }
 }

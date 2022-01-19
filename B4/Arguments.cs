@@ -14,10 +14,11 @@ namespace B4
         private const string ArgumentPrefix = "--";
         public const string HelpKey = "help";
         public const string RootDirectoryKey = "root-directory";
-        public const string TeamCityKey = "teamcity";
-        public const string UserEnvironmentKey = "user-env";
+        public const string SetTeamCityKey = "set-teamcity";
+        public const string SetUserEnvironmentKey = "set-user-env";
         public const string ProjectDirectoryKey = "project-directory";
         public const string PingHostKey = "ping-host";
+        public const string DefaultConfigKey = "default-config";
 
         /// <summary>
         ///     A list of arguments post processing.
@@ -109,6 +110,10 @@ namespace B4
             Output.Log("\t\t\t\tOutput helpful information.");
             Output.NextLine();
 
+            Output.Log($"{ArgumentPrefix}{DefaultConfigKey}", ConsoleColor.Cyan);
+            Output.Log("\t\tOutput the default B4.ini in the root directory.");
+            Output.NextLine();
+
             Output.Log($"{ArgumentPrefix}{PingHostKey} ", ConsoleColor.Cyan);
             Output.Log("<", ConsoleColor.Cyan);
             Output.Log("value");
@@ -130,11 +135,11 @@ namespace B4
             Output.Log("\tOverride the absolute path to the Unity project.");
             Output.NextLine();
 
-            Output.Log($"{ArgumentPrefix}{TeamCityKey}", ConsoleColor.Cyan);
+            Output.Log($"{ArgumentPrefix}{SetTeamCityKey}", ConsoleColor.Cyan);
             Output.Log("\t\t\tSet TeamCity environment variables.");
             Output.NextLine();
 
-            Output.Log($"{ArgumentPrefix}{UserEnvironmentKey}", ConsoleColor.Cyan);
+            Output.Log($"{ArgumentPrefix}{SetUserEnvironmentKey}", ConsoleColor.Cyan);
             Output.Log("\t\t\tSet user environment variables.");
             Output.NextLine();
 

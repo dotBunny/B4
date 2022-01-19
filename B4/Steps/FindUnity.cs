@@ -64,7 +64,7 @@ namespace B4.Steps
                 FullPath = unityEditorPath;
                 Output.Value("FindUnity.FullPath", FullPath);
 
-                Program.SetEnvironmentVariable("UNITY_EDITOR", unityEditorPath);
+                Set.EnvironmentVariable("UNITY_EDITOR", unityEditorPath);
 
                 Output.LogLine("Remove temporary file.");
                 File.Delete(temporaryFile);

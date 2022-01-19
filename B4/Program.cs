@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.NetworkInformation;
+using System.Reflection;
 using B4.Utils;
 
 namespace B4
@@ -23,7 +23,7 @@ namespace B4
         public static Arguments Args;
 
         /// <summary>
-        ///     The B4.ini loaded instance.
+        ///     The B4.ini loaded config instance.
         /// </summary>
         public static SimpleConfig Config;
 
@@ -43,17 +43,34 @@ namespace B4
         /// </summary>
         public static string ProjectDirectory;
 
+        /// <summary>
+        ///     An ordered list of the steps to be processed as defined.
+        /// </summary>
         private static readonly List<IStep> s_orderedSteps = new();
 
+        /// <summary>
+        ///     An instantiated dictionary (by GetID) of possible steps.
+        /// </summary>
         private static readonly Dictionary<string, IStep> s_registeredSteps = new();
 
+        /// <summary>
+        ///     A cached reference to the programs assembly.
+        /// </summary>
+        private static Assembly s_assembly;
+
+        /// <summary>
+        ///     The defined hostname to use when pinging to determine an outside connection.
+        /// </summary>
         private static string s_pingHost;
 
         // ReSharper disable once UnusedMember.Local
         private static void Main(string[] args)
         {
+            // Cache reference to local assembly
+            s_assembly = typeof(Program).Assembly;
+
             Output.LogLine(
-                $"B4 the Bootstrapper | Version {typeof(Program).Assembly.GetName().Version} | Copyright (c) 2022 dotBunny Inc.",
+                $"B4 the Bootstrapper | Version {s_assembly.GetName().Version} | Copyright (c) 2022 dotBunny Inc.",
                 ConsoleColor.Green);
             Output.LogLine($"Started on {DateTime.Now:F}", ConsoleColor.DarkGray);
 
@@ -65,11 +82,17 @@ namespace B4
             {
                 RootDirectory = Path.GetFullPath(rootDirectoryOverride);
             }
-
             Output.Value("RootDirectory", RootDirectory);
 
-            // Load B4 Config
             string configPath = Path.Combine(RootDirectory, "B4.ini");
+
+            // Output B4 Config
+            if (Args.Has(Arguments.DefaultConfigKey))
+            {
+                File.WriteAllBytes(configPath, Resources.Get("B4.Configs.B4.ini"));
+            }
+
+            // Load B4 Config
             Config = File.Exists(configPath)
                 ? new SimpleConfig(configPath)
                 : new SimpleConfig(Resources.Get("B4.Configs.B4.ini"));
@@ -79,12 +102,10 @@ namespace B4
             {
                 ProjectDirectory = Path.GetFullPath(Path.Combine(RootDirectory, projectDirectoryDefault));
             }
-
             if (Args.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryOverride))
             {
                 ProjectDirectory = Path.GetFullPath(projectDirectoryOverride);
             }
-
             Output.Value("ProjectDirectory", ProjectDirectory);
 
             // PingHost
@@ -92,12 +113,10 @@ namespace B4
             {
                 s_pingHost = pingHostDefault;
             }
-
             if (Args.TryGetValue(Arguments.PingHostKey, out string pingHostOverride))
             {
                 s_pingHost = pingHostOverride;
             }
-
             Output.Value("PingHost", s_pingHost);
 
             // Check Internet Connection
@@ -120,15 +139,12 @@ namespace B4
                 Output.Value("IsOnline", IsOnline.ToString());
             }
 
-            // Search the assembly for included IStep's and create an instance of each, using the system activator.
+            // Search the assemblies for included IStep's and create an instance of each, using the system activator.
             Type stepInterface = typeof(IStep);
-            IEnumerable<Type> foundTypes = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
-                .Where(p => stepInterface.IsAssignableFrom(p));
-            foreach (Type t in foundTypes)
+            Type[] types = s_assembly.GetTypes();
+            foreach (Type t in types)
             {
-                // Don't try to create the interface
-                if (t == stepInterface)
+                if (t == stepInterface || !stepInterface.IsAssignableFrom(t))
                 {
                     continue;
                 }
@@ -173,21 +189,6 @@ namespace B4
             {
                 Output.SectionHeader(step.GetHeader());
                 step.Process();
-            }
-        }
-
-        public static void SetEnvironmentVariable(string name, string value)
-        {
-            if (Args.Has(Arguments.TeamCityKey))
-            {
-                // Set for TeamCity
-                Output.LogLine($"##teamcity[setParameter name='{name}' value='{value}']", ConsoleColor.Yellow);
-            }
-
-            // Set for user (no-perm request)
-            if (Args.Has(Arguments.UserEnvironmentKey))
-            {
-                Environment.SetEnvironmentVariable(name, value, EnvironmentVariableTarget.User);
             }
         }
     }
