@@ -50,6 +50,7 @@ namespace B4.Steps
         public void Process()
         {
             // TODO: Config?
+
             string prebuiltDirectory = Path.Combine(Program.RootDirectory, "K9");
             if (Program.Args.TryGetValue(PrebuiltKey, out string prebuiltOverride))
             {
@@ -62,7 +63,11 @@ namespace B4.Steps
             Output.Value("prebuiltDirectory", prebuiltDirectory);
 
             // TODO: Config?
-            string repositoryDirectory = Path.Combine(Program.RootDirectory, "Projects", "K9");
+            string repositoryDirectory = null;
+            if (Program.Config.TryGetValue(RepositoryKey, out string defaultRepositoryDirectory))
+            {
+                repositoryDirectory = defaultRepositoryDirectory;
+            }
             if (Program.Args.TryGetValue(RepositoryKey, out string repositoryOverride))
             {
                 if (Directory.Exists(repositoryOverride))

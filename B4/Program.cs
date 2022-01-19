@@ -97,6 +97,7 @@ namespace B4
                 ? new SimpleConfig(configPath)
                 : new SimpleConfig(Resources.Get("B4.Configs.B4.ini"));
 
+
             // ProjectDirectory
             if (Config.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryDefault))
             {
@@ -191,5 +192,31 @@ namespace B4
                 step.Process();
             }
         }
+
+        // public static bool EvaluateVariable(string key, string defaultValue, out string value,
+        //     Func<string, string> processFunction, Func<string, bool> validateFunction)
+        // {
+        //     if (Config.TryGetValue(key, out string foundConfig))
+        //     {
+        //         if (validateFunction.Invoke(foundConfig))
+        //         {
+        //             value = foundConfig;
+        //         }
+        //         ProjectDirectory = Path.GetFullPath(Path.Combine(RootDirectory, defaultValue));
+        //     }
+        // }
+        // public static bool EvaluateVariable(string key, string defaultValue, out string storage)
+        // {
+        //     // ProjectDirectory
+        //     if (Config.TryGetValue(key, out string foundConfig))
+        //     {
+        //         ProjectDirectory = Path.GetFullPath(Path.Combine(RootDirectory, defaultValue));
+        //     }
+        //     if (Args.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryOverride))
+        //     {
+        //         ProjectDirectory = Path.GetFullPath(projectDirectoryOverride);
+        //     }
+        //     Output.Value("ProjectDirectory", ProjectDirectory);
+        // }
     }
 }
