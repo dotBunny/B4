@@ -12,10 +12,9 @@ namespace B4
 {
     public class SimpleConfig
     {
+        private readonly Dictionary<string, string> _config = new();
         private readonly string[] _fileContent;
         private readonly string _filePath;
-
-        private readonly Dictionary<string, string> _config = new();
 
         public SimpleConfig(string filePath)
         {

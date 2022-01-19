@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.NetworkInformation;
-using B4.Steps;
 using B4.Utils;
 
 namespace B4
@@ -43,9 +43,11 @@ namespace B4
         /// </summary>
         public static string ProjectDirectory;
 
-        private static string s_pingHost;
+        private static readonly List<IStep> s_orderedSteps = new();
 
-        private static readonly Dictionary<string, IStep> s_steps = new();
+        private static readonly Dictionary<string, IStep> s_registeredSteps = new();
+
+        private static string s_pingHost;
 
         // ReSharper disable once UnusedMember.Local
         private static void Main(string[] args)
@@ -118,16 +120,24 @@ namespace B4
                 Output.Value("IsOnline", IsOnline.ToString());
             }
 
-            // Initialize our step processors, this will self register content for other systems in the the right order
-            // of operation.
+            // Search the assembly for included IStep's and create an instance of each, using the system activator.
+            Type stepInterface = typeof(IStep);
+            IEnumerable<Type> foundTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(s => s.GetTypes())
+                .Where(p => stepInterface.IsAssignableFrom(p));
+            foreach (Type t in foundTypes)
+            {
+                // Don't try to create the interface
+                if (t == stepInterface)
+                {
+                    continue;
+                }
 
-            // TODO:each constructor should reach out to program loaded config for defaults?
-            RegisterStep(new Bootstrapper());
-            RegisterStep(new K9());
-            RegisterStep(new K9Config());
-            RegisterStep(new RemotePackages());
-            RegisterStep(new FindUnity());
-            RegisterStep(new LaunchUnity());
+                // Create instance and register instance
+                IStep step = (IStep)Activator.CreateInstance(t);
+                if (step == null) continue;
+                s_registeredSteps.Add(step.GetID().ToLower(), step);
+            }
 
             // Check for help request
             if (Args.Has(Arguments.HelpKey))
@@ -136,13 +146,33 @@ namespace B4
                 return;
             }
 
-            // TODO: Process steps based on steps in config/cli arg
-
-            // Process Steps
-            foreach (KeyValuePair<string, IStep> kvp in s_steps)
+            // Build out ordered steps
+            if (Config.TryGetValue("steps", out string steps))
             {
-                Output.SectionHeader(kvp.Value.GetHeader());
-                kvp.Value.Process();
+                string[] stepSplit = steps.Split(',', StringSplitOptions.TrimEntries);
+                foreach (string targetStep in stepSplit)
+                {
+                    string targetStepLower = targetStep.ToLower();
+                    if(s_registeredSteps.ContainsKey(targetStepLower))
+                    {
+                        s_orderedSteps.Add(s_registeredSteps[targetStepLower]);
+                    }
+                    else
+                    {
+                        Output.Log($"Unable to find '{targetStepLower}' step.", ConsoleColor.Yellow);
+                    }
+                }
+            }
+            if (s_orderedSteps.Count == 0)
+            {
+                Output.Error("No steps defined.", -1, true);
+            }
+
+            // Process steps
+            foreach (IStep step in s_orderedSteps)
+            {
+                Output.SectionHeader(step.GetHeader());
+                step.Process();
             }
         }
 
@@ -159,11 +189,6 @@ namespace B4
             {
                 Environment.SetEnvironmentVariable(name, value, EnvironmentVariableTarget.User);
             }
-        }
-
-        private static void RegisterStep(IStep step)
-        {
-            s_steps.Add(step.GetID(), step);
         }
     }
 }
