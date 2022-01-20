@@ -88,7 +88,7 @@ namespace B4
             // Setup environment
             foreach (KeyValuePair<string, string> item in _config)
             {
-                Set.EnvironmentVariable(item.Key, item.Value);
+                Program.SetEnvironmentVariable(item.Key, item.Value);
             }
         }
     }

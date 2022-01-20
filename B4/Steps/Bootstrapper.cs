@@ -39,16 +39,9 @@ namespace B4.Steps
         /// <inheritdoc />
         public void Process()
         {
-            // TODO: Config?
-            string repositoryDirectory = Path.Combine(Program.RootDirectory, "Projects", "B4");
-            if (Program.Args.TryGetValue(RepositoryKey, out string repositoryOverride))
-            {
-                if (Directory.Exists(repositoryOverride))
-                {
-                    repositoryDirectory = repositoryOverride;
-                }
-            }
-
+            Program.GetParameter(RepositoryKey, "Projects/B4", out string repositoryDirectory,
+                s => Path.GetFullPath(Path.Combine(Program.RootDirectory, s)),
+                Directory.Exists);
             Output.Value("repositoryDirectory", repositoryDirectory);
 
             if (!Program.Args.Has(NoKey))

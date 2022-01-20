@@ -99,25 +99,13 @@ namespace B4
 
 
             // ProjectDirectory
-            if (Config.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryDefault))
-            {
-                ProjectDirectory = Path.GetFullPath(Path.Combine(RootDirectory, projectDirectoryDefault));
-            }
-            if (Args.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryOverride))
-            {
-                ProjectDirectory = Path.GetFullPath(projectDirectoryOverride);
-            }
+            GetParameter(Arguments.ProjectDirectoryKey, "Projects/NightOwl", out ProjectDirectory,
+                s => Path.GetFullPath(Path.Combine(RootDirectory, s)),
+                            Directory.Exists);
             Output.Value("ProjectDirectory", ProjectDirectory);
 
             // PingHost
-            if (Config.TryGetValue(Arguments.PingHostKey, out string pingHostDefault))
-            {
-                s_pingHost = pingHostDefault;
-            }
-            if (Args.TryGetValue(Arguments.PingHostKey, out string pingHostOverride))
-            {
-                s_pingHost = pingHostOverride;
-            }
+            GetParameter(Arguments.PingHostKey, "github.com", out s_pingHost);
             Output.Value("PingHost", s_pingHost);
 
             // Check Internet Connection
@@ -193,30 +181,86 @@ namespace B4
             }
         }
 
-        // public static bool EvaluateVariable(string key, string defaultValue, out string value,
-        //     Func<string, string> processFunction, Func<string, bool> validateFunction)
-        // {
-        //     if (Config.TryGetValue(key, out string foundConfig))
-        //     {
-        //         if (validateFunction.Invoke(foundConfig))
-        //         {
-        //             value = foundConfig;
-        //         }
-        //         ProjectDirectory = Path.GetFullPath(Path.Combine(RootDirectory, defaultValue));
-        //     }
-        // }
-        // public static bool EvaluateVariable(string key, string defaultValue, out string storage)
-        // {
-        //     // ProjectDirectory
-        //     if (Config.TryGetValue(key, out string foundConfig))
-        //     {
-        //         ProjectDirectory = Path.GetFullPath(Path.Combine(RootDirectory, defaultValue));
-        //     }
-        //     if (Args.TryGetValue(Arguments.ProjectDirectoryKey, out string projectDirectoryOverride))
-        //     {
-        //         ProjectDirectory = Path.GetFullPath(projectDirectoryOverride);
-        //     }
-        //     Output.Value("ProjectDirectory", ProjectDirectory);
-        // }
+        /// <summary>
+        ///     Get the value for a given parameter from the config, overriden by the arguments, but also have a
+        ///     failsafe default value.
+        /// </summary>
+        /// <param name="key">The argument identifier or config identifier.</param>
+        /// <param name="defaultValue">A built-in default value.</param>
+        /// <param name="resolvedValue">The resolved parameter value written to the provided <see cref="string"/>.</param>
+        /// <param name="processFunction">A function to manipulate the value retrieved.</param>
+        /// <param name="validateFunction">A function to validate the working value.</param>
+        /// <returns>true/false if value was found.</returns>
+        public static bool GetParameter(string key, string defaultValue, out string resolvedValue,
+            Func<string, string> processFunction = null, Func<string, bool> validateFunction = null)
+        {
+            bool success = false;
+            resolvedValue = processFunction != null ? processFunction.Invoke(defaultValue) : defaultValue;
+
+            if (Config.TryGetValue(key, out string foundConfig))
+            {
+                if (processFunction != null)
+                {
+                    foundConfig = processFunction.Invoke(foundConfig);
+                }
+
+                if (validateFunction != null)
+                {
+                    if (validateFunction.Invoke(foundConfig))
+                    {
+                        resolvedValue = foundConfig;
+                        success = true;
+                    }
+                }
+                else
+                {
+                    resolvedValue = foundConfig;
+                    success = true;
+                }
+            }
+            if (Args.TryGetValue(key, out string foundOverride))
+            {
+                if (processFunction != null)
+                {
+                    foundOverride = processFunction.Invoke(foundOverride);
+                }
+
+                if (validateFunction != null)
+                {
+                    if (validateFunction.Invoke(foundOverride))
+                    {
+                        resolvedValue = foundOverride;
+                        success = true;
+                    }
+                }
+                else
+                {
+                    resolvedValue = foundOverride;
+                    success = true;
+                }
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        ///     Set a variable for future reference in the running environment.
+        /// </summary>
+        /// <param name="name">The name of the variable.</param>
+        /// <param name="value">The value of the variable.</param>
+        public static void SetEnvironmentVariable(string name, string value)
+        {
+            if (Args.Has(Arguments.SetTeamCityKey))
+            {
+                // Set for TeamCity
+                Output.LogLine($"##teamcity[setParameter name='{name}' value='{value}']", ConsoleColor.Yellow);
+            }
+
+            // Set for user (no-perm request)
+            if (Args.Has(Arguments.SetUserEnvironmentKey))
+            {
+                Environment.SetEnvironmentVariable(name, value, EnvironmentVariableTarget.User);
+            }
+        }
     }
 }

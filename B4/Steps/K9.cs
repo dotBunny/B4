@@ -49,33 +49,14 @@ namespace B4.Steps
         /// <inheritdoc />
         public void Process()
         {
-            // TODO: Config?
-
-            string prebuiltDirectory = Path.Combine(Program.RootDirectory, "K9");
-            if (Program.Args.TryGetValue(PrebuiltKey, out string prebuiltOverride))
-            {
-                if (Directory.Exists(prebuiltOverride))
-                {
-                    prebuiltDirectory = prebuiltOverride;
-                }
-            }
-
+            Program.GetParameter(PrebuiltKey, "K9", out string prebuiltDirectory,
+                s => Path.GetFullPath(Path.Combine(Program.RootDirectory, s)),
+                Directory.Exists);
             Output.Value("prebuiltDirectory", prebuiltDirectory);
 
-            // TODO: Config?
-            string repositoryDirectory = null;
-            if (Program.Config.TryGetValue(RepositoryKey, out string defaultRepositoryDirectory))
-            {
-                repositoryDirectory = defaultRepositoryDirectory;
-            }
-            if (Program.Args.TryGetValue(RepositoryKey, out string repositoryOverride))
-            {
-                if (Directory.Exists(repositoryOverride))
-                {
-                    repositoryDirectory = repositoryOverride;
-                }
-            }
-
+            Program.GetParameter(RepositoryKey, "Projects/K9", out string repositoryDirectory,
+                s => Path.GetFullPath(Path.Combine(Program.RootDirectory, s)),
+                Directory.Exists);
             Output.Value("repositoryDirectory", repositoryDirectory);
 
             if (Directory.Exists(prebuiltDirectory))
@@ -111,7 +92,7 @@ namespace B4.Steps
             }
 
             Output.Value("K9", FullPath);
-            Set.EnvironmentVariable("K9", FullPath);
+            Program.SetEnvironmentVariable("K9", FullPath);
         }
     }
 }
