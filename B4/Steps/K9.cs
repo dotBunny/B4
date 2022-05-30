@@ -76,7 +76,7 @@ namespace B4.Steps
                             if (ChildProcess.WaitFor("dotnet.exe", repositoryDirectory,
                                     "build K9.sln --configuration Release"))
                             {
-                                File.WriteAllText(GetVersionPath(), Git.GetLocalCommit(repositoryDirectory));
+                                File.WriteAllText(GetVersionPath(), Git.GetLocalCommit(repositoryDirectory).Trim());
                             }
                             else
                             {
@@ -114,7 +114,7 @@ namespace B4.Steps
                 if (ChildProcess.WaitFor("dotnet.exe", repositoryDirectory,
                         "build K9.sln --configuration Release"))
                 {
-                    File.WriteAllText(GetVersionPath(), Git.GetLocalCommit(repositoryDirectory));
+                    File.WriteAllText(GetVersionPath(), Git.GetLocalCommit(repositoryDirectory).Trim());
                 }
                 else
                 {
@@ -126,7 +126,7 @@ namespace B4.Steps
         private string GetBuiltVersion()
         {
             string versionPath = GetVersionPath();
-            return File.Exists(versionPath) ? File.ReadAllText(versionPath) : string.Empty;
+            return File.Exists(versionPath) ? File.ReadAllText(versionPath).Trim() : string.Empty;
         }
 
         private static string GetVersionPath()
