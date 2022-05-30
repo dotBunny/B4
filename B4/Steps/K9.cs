@@ -64,35 +64,74 @@ namespace B4.Steps
                 FullPath = prebuiltDirectory;
                 Output.LogLine("Found prebuilt K9.", ConsoleColor.Green);
             }
-            else if (Program.IsOnline)
+            else
             {
-                if (!Program.Args.Has(NoKey))
+                if (Program.IsOnline)
                 {
-                    Git.GetOrUpdate("K9", repositoryDirectory, "https://github.com/dotBunny/K9", () =>
+                    if (!Program.Args.Has(NoKey))
                     {
-                        Output.LogLine("Building K9 (Release) ...");
-                        if (!ChildProcess.WaitFor("dotnet.exe", repositoryDirectory,
-                                "build K9.sln --configuration Release"))
+                        Git.GetOrUpdate("K9", repositoryDirectory, "https://github.com/dotBunny/K9", () =>
                         {
-                            Output.Error("Unable to build K9", -1, true);
-                        }
-                    });
+                            Output.LogLine("Building K9 (Release) ...");
+                            if (ChildProcess.WaitFor("dotnet.exe", repositoryDirectory,
+                                    "build K9.sln --configuration Release"))
+                            {
+                                File.WriteAllText(GetVersionPath(), Git.GetLocalCommit(repositoryDirectory));
+                            }
+                            else
+                            {
+                                Output.Error("Unable to build K9", -1, true);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        Output.Warning("Ignoring K9 installation/upgrading.");
+                    }
+
+                    FullPath = Path.Combine(repositoryDirectory, "Build", "Release");
                 }
                 else
                 {
-                    Output.Warning("Ignoring K9 installation/upgrading.");
+                    FullPath = Path.Combine(repositoryDirectory, "Build", "Release");
+                    Output.Warning("Skipping K9 updates, unable to reach endpoint.");
                 }
 
-                FullPath = Path.Combine(repositoryDirectory, "Build", "Release");
+                CheckBuild(repositoryDirectory);
             }
-            else
-            {
-                FullPath = Path.Combine(repositoryDirectory, "Build", "Release");
-                Output.Warning("Skipping K9 updates, unable to reach endpoint.");
-            }
+
 
             Output.Value("K9", FullPath);
             Program.SetEnvironmentVariable("K9", FullPath);
+        }
+
+        private void CheckBuild(string repositoryDirectory)
+        {
+            string latestCommit = Git.GetLocalCommit(repositoryDirectory);
+            string builtVersion = GetBuiltVersion();
+            if (builtVersion != latestCommit)
+            {
+                if (ChildProcess.WaitFor("dotnet.exe", repositoryDirectory,
+                        "build K9.sln --configuration Release"))
+                {
+                    File.WriteAllText(GetVersionPath(), Git.GetLocalCommit(repositoryDirectory));
+                }
+                else
+                {
+                    Output.Error("Unable to build K9", -1, true);
+                }
+            }
+        }
+
+        private string GetBuiltVersion()
+        {
+            string versionPath = GetVersionPath();
+            return File.Exists(versionPath) ? File.ReadAllText(versionPath) : string.Empty;
+        }
+
+        private static string GetVersionPath()
+        {
+            return Path.Combine(Program.RootDirectory, "K9_VERSION");
         }
     }
 }

@@ -3,12 +3,23 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace B4.Utils
 {
     public static class Git
     {
+        public static string GetLocalCommit(string repositoryDirectory)
+        {
+            List<string> output = new List<string>();
+            ChildProcess.WaitFor("git.exe", repositoryDirectory, "rev-parse HEAD", Line =>
+            {
+                Output.LogLine(Line);
+                output.Add(Line);
+            });
+            return output[0].Trim();
+        }
         public static void GetOrUpdate(string name, string repositoryDirectory, string repositoryURI,
             Action onUpdate = null)
         {
@@ -41,16 +52,29 @@ namespace B4.Utils
 
                 if (isBehind)
                 {
+                    bool failures = false;
                     Output.LogLine($"Resetting local {name} source ...");
                     if (!ChildProcess.WaitFor("git.exe", repositoryDirectory, "reset --hard"))
                     {
                         Output.Warning($"Unable to reset {name} repository.");
+                        failures = true;
                     }
 
                     Output.LogLine($"Getting latest {name} source ...");
                     if (!ChildProcess.WaitFor("git.exe", repositoryDirectory, "pull"))
                     {
                         Output.Warning($"Unable to pull updates for {name} repository.");
+                        failures = true;
+                    }
+
+
+                    if (!failures)
+                    {
+                        onUpdate?.Invoke();
+                    }
+                    else
+                    {
+                        Output.Error("Failures occured while trying to update code.", -1, true);
                     }
                 }
                 else
@@ -66,8 +90,10 @@ namespace B4.Utils
                 {
                     Output.Error($"Unable to clone {name}.", -1, true);
                 }
-
-                onUpdate?.Invoke();
+                else
+                {
+                    onUpdate?.Invoke();
+                }
             }
         }
     }
