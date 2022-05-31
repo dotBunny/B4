@@ -19,8 +19,8 @@ namespace B4.Utils
             }
 
             byte[] ba = new byte[resFilestream.Length];
-            resFilestream.Read(ba, 0, ba.Length);
-            return ba;
+            int read = resFilestream.Read(ba, 0, ba.Length);
+            return read == ba.Length ? ba : null;
         }
     }
 }
