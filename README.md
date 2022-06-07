@@ -5,6 +5,9 @@ Our internal project bootstrapper.
 B4 is by no means the most optimized battle-ready code, nor is it meant to be. It is a finite set of functionality designed to bootstrap a projects workspace setup.
 
 ## Steps
+### Bootstrapper
+This acquires and updates locally the [B4](https://github.com/dotBunny/B4) source code.
+### VCSTriggers
 ### K9
 This acquires, installs, and updates locally the [K9](https://github.com/dotBunny/K9) set of utilities.
 ### K9Config
