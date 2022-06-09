@@ -3,6 +3,9 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
 
 namespace B4.Utils
 {
@@ -14,16 +17,50 @@ namespace B4.Utils
         private static ConsoleColor s_stashedForegroundColor;
         private static ConsoleColor s_stashedBackgroundColor;
 
+        private static StringBuilder s_line = new StringBuilder();
+        private static List<string> s_buffer = new List<string>(20);
+        private static string s_logFile;
+
+        public static void InitLog()
+        {
+            s_logFile = Path.Combine(Program.RootDirectory, "B4.log");
+            File.WriteAllText(s_logFile, $"Launched in {Program.RootDirectory} ...");
+        }
+        public static void FlushLog()
+        {
+            File.WriteAllLines(s_logFile, s_buffer.ToArray());
+            s_buffer.Clear();
+        }
+
+        static void AppendLineToBuffer(string line)
+        {
+            if (s_line.Length > 0)
+            {
+                s_buffer.Add(s_line.ToString().Trim('\n'));
+                s_line.Clear();
+                if (string.IsNullOrEmpty(line))
+                {
+                    return;
+                }
+            }
+
+            s_buffer.Add(line);
+        }
 
         public static void Error(string message, int errorCode, bool isFatal = false)
         {
             StashState();
             Console.ForegroundColor = ConsoleColor.Red;
             Console.BackgroundColor = ConsoleColor.Black;
-            Console.WriteLine($"ERROR {errorCode}: {message}");
+
+            string line = $"ERROR {errorCode}: {message}";
+            Console.WriteLine(line);
+            AppendLineToBuffer(line);
+
             RestoreState();
             if (isFatal)
             {
+                FlushLog();
                 Environment.Exit(errorCode);
             }
         }
@@ -34,11 +71,15 @@ namespace B4.Utils
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.Write(key);
+            s_line.Append(key);
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.Write("=");
+            s_line.Append("=");
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Write(value);
+            s_line.Append(value);
             Console.WriteLine();
+            AppendLineToBuffer(string.Empty);
             RestoreState();
         }
 
@@ -54,6 +95,7 @@ namespace B4.Utils
             Console.ForegroundColor = foregroundColor;
             Console.BackgroundColor = backgroundColor;
             Console.Write(message);
+            s_line.Append(message);
             RestoreState();
         }
 
@@ -70,12 +112,14 @@ namespace B4.Utils
             Console.ForegroundColor = foregroundColor;
             Console.BackgroundColor = backgroundColor;
             Console.WriteLine(message);
+            AppendLineToBuffer(message);
             RestoreState();
         }
 
         public static void NextLine()
         {
             Console.WriteLine();
+            AppendLineToBuffer(string.Empty);
         }
 
         public static void SectionHeader(string message)
@@ -84,10 +128,14 @@ namespace B4.Utils
             Console.BackgroundColor = ConsoleColor.Black;
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine();
+            AppendLineToBuffer(string.Empty);
             Console.Write("[");
+            s_line.Append("[");
             Console.ForegroundColor = ConsoleColor.Green;
             Console.Write(message);
+            s_line.Append(message);
             Console.ForegroundColor = ConsoleColor.White;
+            s_line.Append("]\n");
             Console.Write("]\n");
             RestoreState();
         }
@@ -99,6 +147,7 @@ namespace B4.Utils
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.BackgroundColor = ConsoleColor.Black;
             Console.WriteLine($"WARNING: {message}");
+            AppendLineToBuffer($"WARNING: {message}");
             RestoreState();
         }
 

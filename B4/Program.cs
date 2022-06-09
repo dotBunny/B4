@@ -66,118 +66,129 @@ namespace B4
         // ReSharper disable once UnusedMember.Local
         private static void Main(string[] args)
         {
-            // Cache reference to local assembly
-            s_assembly = typeof(Program).Assembly;
-
-            Output.LogLine(
-                $"B4 the Bootstrapper | Version {s_assembly.GetName().Version} | Copyright (c) 2022 dotBunny Inc.",
-                ConsoleColor.Green);
-            Output.LogLine($"Started on {DateTime.Now:F}", ConsoleColor.DarkGray);
-
-            Output.LogLine("Initializing ...");
-            Args = new Arguments(args);
-
-            // Root Directory Override
-            if (Args.TryGetValue(Arguments.RootDirectoryKey, out string rootDirectoryOverride))
-            {
-                RootDirectory = Path.GetFullPath(rootDirectoryOverride);
-            }
-            Output.Value("RootDirectory", RootDirectory);
-
-            string configPath = Path.Combine(RootDirectory, "B4.ini");
-
-            // Output B4 Config
-            if (Args.Has(Arguments.DefaultConfigKey))
-            {
-                File.WriteAllBytes(configPath, Resources.Get("B4.Configs.B4.ini"));
-            }
-
-            // Load B4 Config
-            Config = File.Exists(configPath)
-                ? new SimpleConfig(configPath)
-                : new SimpleConfig(Resources.Get("B4.Configs.B4.ini"));
-
-
-            // ProjectDirectory
-            GetParameter(Arguments.ProjectDirectoryKey, "Projects/NightOwl", out ProjectDirectory,
-                s => Path.GetFullPath(Path.Combine(RootDirectory, s)),
-                            Directory.Exists);
-            Output.Value("ProjectDirectory", ProjectDirectory);
-
-            // PingHost
-            GetParameter(Arguments.PingHostKey, "github.com", out s_pingHost);
-            Output.Value("PingHost", s_pingHost);
-
-            // Check Internet Connection
-            Ping ping = new();
             try
             {
-                PingReply reply = ping.Send(s_pingHost, 3000);
-                if (reply != null)
+                Output.InitLog();
+
+                // Cache reference to local assembly
+                s_assembly = typeof(Program).Assembly;
+
+                Output.LogLine(
+                    $"B4 the Bootstrapper | Version {s_assembly.GetName().Version} | Copyright (c) 2022 dotBunny Inc.",
+                    ConsoleColor.Green);
+                Output.LogLine($"Started on {DateTime.Now:F}", ConsoleColor.DarkGray);
+
+                Output.LogLine("Initializing ...");
+                Args = new Arguments(args);
+
+                // Root Directory Override
+                if (Args.TryGetValue(Arguments.RootDirectoryKey, out string rootDirectoryOverride))
                 {
-                    IsOnline = reply.Status == IPStatus.Success;
+                    RootDirectory = Path.GetFullPath(rootDirectoryOverride);
                 }
-            }
-            catch (Exception e)
-            {
-                Output.LogLine(e.Message, ConsoleColor.Yellow);
-                IsOnline = false;
+
+                Output.Value("RootDirectory", RootDirectory);
+
+                string configPath = Path.Combine(RootDirectory, "B4.ini");
+
+                // Output B4 Config
+                if (Args.Has(Arguments.DefaultConfigKey))
+                {
+                    File.WriteAllBytes(configPath, Resources.Get("B4.Configs.B4.ini"));
+                }
+
+                // Load B4 Config
+                Config = File.Exists(configPath)
+                    ? new SimpleConfig(configPath)
+                    : new SimpleConfig(Resources.Get("B4.Configs.B4.ini"));
+
+
+                // ProjectDirectory
+                GetParameter(Arguments.ProjectDirectoryKey, "Projects/NightOwl", out ProjectDirectory,
+                    s => Path.GetFullPath(Path.Combine(RootDirectory, s)),
+                    Directory.Exists);
+                Output.Value("ProjectDirectory", ProjectDirectory);
+
+                // PingHost
+                GetParameter(Arguments.PingHostKey, "github.com", out s_pingHost);
+                Output.Value("PingHost", s_pingHost);
+
+                // Check Internet Connection
+                Ping ping = new();
+                try
+                {
+                    PingReply reply = ping.Send(s_pingHost, 3000);
+                    if (reply != null)
+                    {
+                        IsOnline = reply.Status == IPStatus.Success;
+                    }
+                }
+                catch (Exception e)
+                {
+                    Output.LogLine(e.Message, ConsoleColor.Yellow);
+                    IsOnline = false;
+                }
+                finally
+                {
+                    Output.Value("IsOnline", IsOnline.ToString());
+                }
+
+                // Search the assemblies for included IStep's and create an instance of each, using the system activator.
+                Type stepInterface = typeof(IStep);
+                Type[] types = s_assembly.GetTypes();
+                foreach (Type t in types)
+                {
+                    if (t == stepInterface || !stepInterface.IsAssignableFrom(t))
+                    {
+                        continue;
+                    }
+
+                    // Create instance and register instance
+                    IStep step = (IStep)Activator.CreateInstance(t);
+                    if (step == null) continue;
+                    s_registeredSteps.Add(step.GetID().ToLower(), step);
+                }
+
+                // Check for help request
+                if (Args.Has(Arguments.HelpKey))
+                {
+                    Args.Help();
+                    return;
+                }
+
+                // Build out ordered steps
+                if (Config.TryGetValue("steps", out string steps))
+                {
+                    string[] stepSplit = steps.Split(',', StringSplitOptions.TrimEntries);
+                    foreach (string targetStep in stepSplit)
+                    {
+                        string targetStepLower = targetStep.ToLower();
+                        if (s_registeredSteps.ContainsKey(targetStepLower))
+                        {
+                            s_orderedSteps.Add(s_registeredSteps[targetStepLower]);
+                        }
+                        else
+                        {
+                            Output.Log($"Unable to find '{targetStepLower}' step.", ConsoleColor.Yellow);
+                        }
+                    }
+                }
+
+                if (s_orderedSteps.Count == 0)
+                {
+                    Output.Error("No steps defined.", -1, true);
+                }
+
+                // Process steps
+                foreach (IStep step in s_orderedSteps)
+                {
+                    Output.SectionHeader(step.GetHeader());
+                    step.Process();
+                }
             }
             finally
             {
-                Output.Value("IsOnline", IsOnline.ToString());
-            }
-
-            // Search the assemblies for included IStep's and create an instance of each, using the system activator.
-            Type stepInterface = typeof(IStep);
-            Type[] types = s_assembly.GetTypes();
-            foreach (Type t in types)
-            {
-                if (t == stepInterface || !stepInterface.IsAssignableFrom(t))
-                {
-                    continue;
-                }
-
-                // Create instance and register instance
-                IStep step = (IStep)Activator.CreateInstance(t);
-                if (step == null) continue;
-                s_registeredSteps.Add(step.GetID().ToLower(), step);
-            }
-
-            // Check for help request
-            if (Args.Has(Arguments.HelpKey))
-            {
-                Args.Help();
-                return;
-            }
-
-            // Build out ordered steps
-            if (Config.TryGetValue("steps", out string steps))
-            {
-                string[] stepSplit = steps.Split(',', StringSplitOptions.TrimEntries);
-                foreach (string targetStep in stepSplit)
-                {
-                    string targetStepLower = targetStep.ToLower();
-                    if(s_registeredSteps.ContainsKey(targetStepLower))
-                    {
-                        s_orderedSteps.Add(s_registeredSteps[targetStepLower]);
-                    }
-                    else
-                    {
-                        Output.Log($"Unable to find '{targetStepLower}' step.", ConsoleColor.Yellow);
-                    }
-                }
-            }
-            if (s_orderedSteps.Count == 0)
-            {
-                Output.Error("No steps defined.", -1, true);
-            }
-
-            // Process steps
-            foreach (IStep step in s_orderedSteps)
-            {
-                Output.SectionHeader(step.GetHeader());
-                step.Process();
+                Output.FlushLog();
             }
         }
 
