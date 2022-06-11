@@ -85,6 +85,12 @@ namespace B4.Steps
 
         void CheckPlasticSCM()
         {
+            if (!Program.Config.TryGetValue("plastic-query", out string query))
+            {
+                Output.LogLine("Unable to find trigger query in config.");
+            }
+
+
             List<string> output = new List<string>();
             ChildProcess.WaitFor("cm", Program.RootDirectory, "trigger list", s =>
             {
