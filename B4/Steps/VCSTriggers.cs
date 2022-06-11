@@ -92,7 +92,7 @@ namespace B4.Steps
 
 
             List<string> output = new List<string>();
-            ChildProcess.WaitFor("cm", Program.RootDirectory, "trigger list", s =>
+            ChildProcess.WaitFor("cm", Program.RootDirectory, $"trigger {query}", s =>
             {
                 output.Add(s);
             });
