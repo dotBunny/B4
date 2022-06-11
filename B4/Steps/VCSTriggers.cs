@@ -85,14 +85,19 @@ namespace B4.Steps
 
         void CheckPlasticSCM()
         {
-            if (!Program.Config.TryGetValue("plastic-query", out string query))
+            if (!Program.Config.TryGetValue("vcs-executable", out string executable))
+            {
+                Output.LogLine("Unable to find vcs executable setting.");
+            }
+
+            if (!Program.Config.TryGetValue("vcs-trigger-list", out string query))
             {
                 Output.LogLine("Unable to find trigger query in config.");
             }
 
 
             List<string> output = new List<string>();
-            ChildProcess.WaitFor("cm", Program.RootDirectory, $"trigger {query}", s =>
+            ChildProcess.WaitFor(executable, Program.RootDirectory, query, s =>
             {
                 output.Add(s);
             });
@@ -110,9 +115,9 @@ namespace B4.Steps
 
             if(!foundExecuteB4)
             {
-                if (Program.Config.TryGetValue("plastic-trigger", out string trigger))
+                if (Program.Config.TryGetValue("vcs-trigger-create", out string trigger))
                 {
-                    ChildProcess.WaitFor("cm", Program.RootDirectory,$"trigger create {trigger}");
+                    ChildProcess.WaitFor(executable, Program.RootDirectory,trigger);
                 }
                 else
                 {
