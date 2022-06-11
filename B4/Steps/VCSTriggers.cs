@@ -104,8 +104,15 @@ namespace B4.Steps
 
             if(!foundExecuteB4)
             {
-                ChildProcess.WaitFor("cm", Program.RootDirectory,
-                    "trigger create after-update \"Execute B4\" \"dotnet @WKSPACE_PATH/B4.dll --no-launch\"");
+                if (Program.Config.TryGetValue("plastic-trigger", out string trigger))
+                {
+                    ChildProcess.WaitFor("cm", Program.RootDirectory,$"trigger create {trigger}");
+                }
+                else
+                {
+                    Output.LogLine("Unable to find trigger content in config.");
+                }
+
             }
             else
             {
