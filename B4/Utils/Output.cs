@@ -24,11 +24,18 @@ namespace B4.Utils
         public static void InitLog()
         {
             s_logFile = Path.Combine(Program.RootDirectory, "B4.log");
+
+            // Remove old log file
+            if (File.Exists(s_logFile))
+            {
+                File.Copy(s_logFile, $"{s_logFile}.prev", true);
+                File.Delete(s_logFile);
+            }
             File.WriteAllText(s_logFile, $"Launched in {Program.RootDirectory} ...");
         }
         public static void FlushLog()
         {
-            File.WriteAllLines(s_logFile, s_buffer.ToArray());
+            File.AppendAllLines(s_logFile, s_buffer.ToArray());
             s_buffer.Clear();
         }
 

@@ -66,6 +66,13 @@ namespace B4
         // ReSharper disable once UnusedMember.Local
         private static void Main(string[] args)
         {
+            // Manual resolve the running directory
+            string dllPath = Assembly.GetAssembly(typeof(Program))?.Location;
+            if (dllPath != null)
+            {
+                RootDirectory = Directory.GetParent(dllPath)?.FullName;
+            }
+
             try
             {
                 Output.InitLog();
