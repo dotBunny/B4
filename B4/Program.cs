@@ -195,8 +195,8 @@ namespace B4
             }
             finally
             {
-                Program.SetEnvironmentVariable("B4.DATE", DateTime.Now.ToString("yyyyMMdd"));
-                Program.SetEnvironmentVariable("B4.TIME", DateTime.Now.ToString("HHmm"));
+                Program.SetEnvironmentVariable("B4_DATE", DateTime.Now.ToString("yyyyMMdd"));
+                Program.SetEnvironmentVariable("B4_TIME", DateTime.Now.ToString("HHmm"));
 
                 Output.FlushLog();
             }
