@@ -13,7 +13,7 @@ namespace B4.Utils
     {
         public static void SetupEnvironmentVariables(this Process process)
         {
-            process.StartInfo.EnvironmentVariables.Add("DOTNET_CLI_TELEMETRY_OPTOUT", "1");
+            process.StartInfo.EnvironmentVariables["DOTNET_CLI_TELEMETRY_OPTOUT"] = "true";
         }
         public static bool SpawnHidden(string executablePath, string workingDirectory, string arguments)
         {
