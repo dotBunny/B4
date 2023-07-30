@@ -1,19 +1,32 @@
-﻿// Copyright (c) 2022 dotBunny Inc.
+// Copyright (c) 2022 dotBunny Inc.
 // dotBunny licenses this file to you under the BSL-1.0 license.
 // See the LICENSE file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace B4.Utils
 {
     public static class Git
     {
+        public static string GetExecutablePath()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "git.exe";
+            }
+            else
+            {
+                return "git";
+            }
+        }
+
         public static string GetLocalCommit(string repositoryDirectory)
         {
             List<string> output = new List<string>();
-            ChildProcess.WaitFor("git.exe", repositoryDirectory, "rev-parse HEAD", Line =>
+            ChildProcess.WaitFor(GetExecutablePath(), repositoryDirectory, "rev-parse HEAD", Line =>
             {
                 Output.LogLine(Line);
                 output.Add(Line);
@@ -23,12 +36,14 @@ namespace B4.Utils
         public static void GetOrUpdate(string name, string repositoryDirectory, string repositoryURI,
             Action onUpdate = null)
         {
+            string executablePath = GetExecutablePath();
+
             if (Directory.Exists(repositoryDirectory))
             {
                 Output.LogLine("Fetching repository updates ...");
 
                 // Grab latest (required really to proceed)
-                if (!ChildProcess.WaitFor("git.exe", repositoryDirectory, "fetch origin"))
+                if (!ChildProcess.WaitFor(executablePath, repositoryDirectory, "fetch origin"))
                 {
                     Output.Error($"Unable to fetch updates for {name}.", Environment.ExitCode, true);
                 }
@@ -36,7 +51,7 @@ namespace B4.Utils
                 // Check if repository is behind
                 Output.LogLine("Checking repository status ...");
                 bool isBehind = false;
-                bool gitStatus = ChildProcess.WaitFor("git.exe", repositoryDirectory, "status -sb", line =>
+                bool gitStatus = ChildProcess.WaitFor(executablePath, repositoryDirectory, "status -sb", line =>
                 {
                     if (line.Contains("behind"))
                     {
@@ -54,14 +69,14 @@ namespace B4.Utils
                 {
                     bool failures = false;
                     Output.LogLine($"Resetting local {name} source ...");
-                    if (!ChildProcess.WaitFor("git.exe", repositoryDirectory, "reset --hard"))
+                    if (!ChildProcess.WaitFor(executablePath, repositoryDirectory, "reset --hard"))
                     {
                         Output.Warning($"Unable to reset {name} repository.");
                         failures = true;
                     }
 
                     Output.LogLine($"Getting latest {name} source ...");
-                    if (!ChildProcess.WaitFor("git.exe", repositoryDirectory, "pull"))
+                    if (!ChildProcess.WaitFor(executablePath, repositoryDirectory, "pull"))
                     {
                         Output.Warning($"Unable to pull updates for {name} repository.");
                         failures = true;
@@ -85,7 +100,7 @@ namespace B4.Utils
             else
             {
                 Output.LogLine($"Getting latest {name} source ...");
-                if (!ChildProcess.WaitFor("git.exe", Program.RootDirectory,
+                if (!ChildProcess.WaitFor(executablePath, Program.RootDirectory,
                         $"clone {repositoryURI} {repositoryDirectory}"))
                 {
                     Output.Error($"Unable to clone {name}.", -1, true);

@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2022 dotBunny Inc.
+// Copyright (c) 2022 dotBunny Inc.
 // dotBunny licenses this file to you under the BSL-1.0 license.
 // See the LICENSE file in the project root for more information.
 
@@ -52,13 +52,6 @@ namespace B4.Steps
             Output.LogLine("Loading K9 config ...");
             _loadedConfig = new SimpleConfig(configPath);
             _loadedConfig?.SetEnvironmentVariables();
-
-
-            // string steamworksDirectory = Path.Combine(Program.RootDirectory, "ThirdParty", "Steamworks");
-            // Program.SetEnvironmentVariable("SteamworksDirectory", steamworksDirectory);
-            // // ReSharper disable once StringLiteralTypo
-            // Program.SetEnvironmentVariable("SteamCommand",
-            //     Path.Combine(steamworksDirectory, "sdk", "tools", "ContentBuilder", "builder", "steamcmd.exe"));
         }
     }
 }

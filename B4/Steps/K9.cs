@@ -1,9 +1,10 @@
-﻿// Copyright (c) 2022 dotBunny Inc.
+// Copyright (c) 2022 dotBunny Inc.
 // dotBunny licenses this file to you under the BSL-1.0 license.
 // See the LICENSE file in the project root for more information.
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using B4.Utils;
 
 namespace B4.Steps
@@ -46,6 +47,18 @@ namespace B4.Steps
             return "K9 Installation";
         }
 
+        public static string GetDotNetPath()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return "dotnet.exe";
+            }
+            else
+            {
+                return "dotnet";
+            }
+        }
+
         /// <inheritdoc />
         public void Process()
         {
@@ -73,7 +86,7 @@ namespace B4.Steps
                         Git.GetOrUpdate("K9", repositoryDirectory, "https://github.com/dotBunny/K9", () =>
                         {
                             Output.LogLine("Building K9 (Release) ...");
-                            if (ChildProcess.WaitFor("dotnet.exe", repositoryDirectory,
+                            if (ChildProcess.WaitFor(GetDotNetPath(), repositoryDirectory,
                                     "build K9.sln --configuration Release"))
                             {
                                 File.WriteAllText(GetVersionPath(), Git.GetLocalCommit(repositoryDirectory).Trim());
@@ -111,7 +124,7 @@ namespace B4.Steps
             string builtVersion = GetBuiltVersion();
             if (builtVersion != latestCommit)
             {
-                if (ChildProcess.WaitFor("dotnet.exe", repositoryDirectory,
+                if (ChildProcess.WaitFor(GetDotNetPath(), repositoryDirectory,
                         "build K9.sln --configuration Release"))
                 {
                     File.WriteAllText(GetVersionPath(), Git.GetLocalCommit(repositoryDirectory).Trim());
